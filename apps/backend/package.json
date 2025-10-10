@@ -10,6 +10,7 @@
     "@types/bun": "latest"
   },
   "dependencies": {
+    "@socket.io/bun-engine": "^0.0.3",
     "socket.io": "^4.8.1"
   }
 }
