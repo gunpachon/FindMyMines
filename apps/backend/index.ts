@@ -43,7 +43,7 @@ io.on("connection", (socket) => {
     io.emit("resetGameState",state)
 });
 
-  //on disconnect
+  //on disconnect -> not done
   socket.on("disconnect", () => {
     io.emit("activeConnections", io.of("/").sockets.size);
     console.log(`# of Connected Clients: ${io.of("/").sockets.size}`)
