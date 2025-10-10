@@ -4,20 +4,50 @@
 
   import TileSVG from "$lib/assets/tile.svg";
   import TileGreenSVG from "$lib/assets/tile-green.svg";
+  import TileEmptySVG from "$lib/assets/tile-empty.svg";
   import TileRedSVG from "$lib/assets/tile-red.svg";
   import BombSVG from "$lib/assets/bomb.svg";
 
-  type TileState = "found:team1" | "found:team2" | "empty" | "unrevealed";
+  type Tile = {
+    state: "hidden" | "revealed";
+    bomb: boolean | undefined;
+    revealer: "Player1" | "Player2" | null;
+  };
 
-  let boardState = Array.from({ length: 36 }, () => "unrevealed") as TileState[];
+  let board: Tile[][] = $state(
+    Array.from({ length: 6 }, () =>
+      Array.from(
+        { length: 6 },
+
+        () =>
+          ({
+            state: "hidden",
+            bomb: undefined,
+            revealer: null,
+          }) satisfies Tile,
+      ),
+    ),
+  );
 
   function randomizeState() {
-    boardState = Array.from(
-      { length: 36 },
-      () =>
-        (["found:team1", "found:team2", "empty", "unrevealed"] as const)[
-          Math.floor(Math.random() * 4)
-        ],
+    board = Array.from({ length: 6 }, () =>
+      Array.from({ length: 6 }, (): Tile => {
+        const isHidden = Math.random() < 0.5 ? true : false;
+
+        if (isHidden) {
+          return {
+            state: "hidden",
+            bomb: undefined,
+            revealer: null,
+          };
+        } else {
+          return {
+            state: "revealed",
+            bomb: Math.random() < 0.5,
+            revealer: Math.random() < 0.5 ? "Player1" : "Player2",
+          };
+        }
+      }),
     );
   }
 </script>
@@ -29,20 +59,32 @@
   Random
 </button>
 
-{#snippet tile(x: number, y: number, state: TileState)}
-  {@const interactible = state === "unrevealed"}
+{#snippet tile(x: number, y: number, state: Tile)}
+  {@const hasBomb = state.state === "revealed" && state.bomb === true}
+  {@const tileSVGVariant = (() => {
+    if (hasBomb) {
+      switch (state.revealer) {
+        case "Player1":
+          return TileGreenSVG;
+        case "Player2":
+          return TileRedSVG;
+      }
+    } else {
+      if (state.state === "revealed") return TileEmptySVG;
+      return TileSVG;
+    }
+  })()}
   <div class="relative select-none drop-shadow-md">
     <img
-      src={state === "found:team1" ? TileGreenSVG : state === "found:team2" ? TileRedSVG : TileSVG}
+      src={tileSVGVariant}
       alt=""
       class={twMerge(
-        "h-full w-full",
-        state === "empty" && "brightness-50",
-        interactible && "hover:cursor-pointer",
+        "h-full w-full shadow-inner",
+        state.state === "hidden" && "hover:cursor-pointer",
       )}
       draggable="false"
     />
-    {#if state === "found:team1" || state === "found:team2"}
+    {#if state.state === "revealed" && state.bomb === true}
       <img
         src={BombSVG}
         class="absolute inset-0 z-10"
@@ -71,11 +113,11 @@
     >
       <div class="flex h-full w-full flex-col items-center xl:flex-row">
         <div
-          class="bg-be-mine-gray grid aspect-square h-full max-h-full w-auto max-w-full grid-cols-6 place-items-stretch p-3 xl:h-auto xl:w-full"
+          class="bg-be-mine-gray grid aspect-square h-full max-h-full w-auto max-w-full grid-cols-6 place-items-stretch gap-1 p-3 xl:h-auto xl:w-full"
         >
           {#each Array.from(new Array(6), (_, i) => i) as y}
             {#each Array.from(new Array(6), (_, i) => i) as x}
-              {@const state = boardState[y * 6 + x]}
+              {@const state = board[y][x]}
               {@render tile(x, y, state)}
             {/each}
           {/each}
