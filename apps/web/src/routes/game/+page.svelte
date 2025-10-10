@@ -7,6 +7,7 @@
   import TileEmptySVG from "$lib/assets/tile-empty.svg";
   import TileRedSVG from "$lib/assets/tile-red.svg";
   import BombSVG from "$lib/assets/bomb.svg";
+  import TimerBar from "$lib/components/TimerBar.svelte";
 
   type Tile = {
     state: "hidden" | "revealed";
@@ -29,6 +30,11 @@
     ),
   );
 
+  let startTime1 = $state(100);
+  let endTime1 = $state(200);
+  let startTime2 = $state(100);
+  let endTime2 = $state(200);
+
   function randomizeState() {
     board = Array.from({ length: 6 }, () =>
       Array.from({ length: 6 }, (): Tile => {
@@ -50,14 +56,42 @@
       }),
     );
   }
+
+  function testTimer() {
+    const now = Date.now();
+
+    startTime1 = now;
+    endTime1 = now + 5000;
+  }
+
+  function testTimer2() {
+    const now = Date.now();
+
+    startTime2 = now;
+    endTime2 = now + 5000;
+  }
 </script>
 
-<button
-  class="hover:brightness-120 absolute bottom-8 right-8 rounded bg-red-500 px-4 py-3 text-white hover:cursor-pointer"
-  onclick={randomizeState}
->
-  Random
-</button>
+<div class="absolute bottom-8 right-8">
+  <button
+    class="hover:brightness-120 rounded bg-red-500 px-4 py-3 text-white hover:cursor-pointer"
+    onclick={randomizeState}
+  >
+    Random
+  </button>
+  <button
+    class="hover:brightness-120 rounded bg-blue-500 px-4 py-3 text-white hover:cursor-pointer"
+    onclick={testTimer}
+  >
+    Timer 1
+  </button>
+  <button
+    class="hover:brightness-120 rounded bg-blue-500 px-4 py-3 text-white hover:cursor-pointer"
+    onclick={testTimer2}
+  >
+    Timer 2
+  </button>
+</div>
 
 {#snippet tile(x: number, y: number, state: Tile)}
   {@const hasBomb = state.state === "revealed" && state.bomb === true}
@@ -101,12 +135,11 @@
   >
     <div class="col-span-1 col-start-1 row-start-1 shrink-0 space-y-6">
       <Score name="Player 1" score={10} variant="left" />
-      <div class="h-6 w-full overflow-hidden rounded-lg bg-gray-300">
-        <div class="bg-be-mine-green h-full w-[60%]"></div>
-      </div>
+      <TimerBar start={startTime1} end={endTime1} variant="green" />
     </div>
-    <div class="col-span-1 col-start-3 row-start-1 shrink-0">
+    <div class="col-span-1 col-start-3 row-start-1 shrink-0 space-y-6">
       <Score name="Player 2" score={10} variant="right" />
+      <TimerBar start={startTime2} end={endTime2} variant="red" />
     </div>
     <div
       class="col-span-full row-start-2 place-self-stretch xl:col-span-1 xl:row-span-full xl:row-start-1"
