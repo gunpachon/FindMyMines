@@ -26,6 +26,7 @@
       },
       "devDependencies": {
         "@fontsource-variable/jaro": "^5.2.7",
+        "@fontsource/jersey-25": "^5.2.8",
         "@sveltejs/adapter-auto": "^6.0.0",
         "@sveltejs/kit": "^2.22.0",
         "@sveltejs/vite-plugin-svelte": "^6.0.0",
@@ -134,6 +135,8 @@
     "@eslint/plugin-kit": ["@eslint/plugin-kit@0.4.0", "", { "dependencies": { "@eslint/core": "^0.16.0", "levn": "^0.4.1" } }, "sha512-sB5uyeq+dwCWyPi31B2gQlVlo+j5brPlWx4yZBrEaRo/nhdDE8Xke1gsGgtiBdaBTxuTkceLVuVt/pclrasb0A=="],
 
     "@fontsource-variable/jaro": ["@fontsource-variable/jaro@5.2.7", "", {}, "sha512-DU4hKWdVBX1B3HYv5woCMDOXryWaWzcXS4tCw23Fwm+QoSv5QPUP+a39jGqWQNynn5TZm6qx+AzI67VQ21irhQ=="],
+
+    "@fontsource/jersey-25": ["@fontsource/jersey-25@5.2.8", "", {}, "sha512-hreXFGgtiWaGtmj4NEtC7jaBOEEx2oxCehMUAqi2bRakS500S41S10wS22pOtaVVGgaR1Iht6+gUfJWJrMEt+A=="],
 
     "@humanfs/core": ["@humanfs/core@0.19.1", "", {}, "sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA=="],
 
