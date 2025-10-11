@@ -145,20 +145,18 @@
       return TileSVG;
     }
   })()}
+
   <div class="relative select-none drop-shadow-md">
     <img
       src={tileSVGVariant}
       alt=""
-      class={twMerge(
-        "h-full w-full shadow-inner",
-        state.state === "hidden" && "hover:cursor-pointer",
-      )}
+      class={twMerge("h-full w-full", state.state === "hidden" && "hover:cursor-pointer")}
       draggable="false"
     />
     {#if state.state === "revealed" && state.bomb === true}
       <img
         src={BombSVG}
-        class="absolute inset-0 z-10"
+        class="absolute inset-0 z-10 ml-1"
         draggable="false"
         alt="Pixel art representing a bomb"
       />
@@ -185,11 +183,11 @@
   >
     <div class="col-span-1 col-start-1 row-start-1 shrink-0 space-y-6">
       <Score name="Player 1" score={10} variant="left" />
-      <TimerBar start={startTime1} end={endTime1} variant="green" />
+      <TimerBar start={startTime1} end={endTime1} variant="left" />
     </div>
     <div class="col-span-1 col-start-3 row-start-1 shrink-0 space-y-6">
       <Score name="Player 2" score={10} variant="right" />
-      <TimerBar start={startTime2} end={endTime2} variant="red" />
+      <TimerBar start={startTime2} end={endTime2} variant="right" />
     </div>
     <div
       class="col-span-full row-start-2 place-self-stretch xl:col-span-1 xl:row-span-full xl:row-start-1"
