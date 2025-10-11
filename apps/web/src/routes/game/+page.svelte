@@ -6,8 +6,15 @@
   import TileGreenSVG from "$lib/assets/tile-green.svg";
   import TileEmptySVG from "$lib/assets/tile-empty.svg";
   import TileRedSVG from "$lib/assets/tile-red.svg";
+
+  import AlarmSVG from "$lib/assets/icons/alarm.svg";
+  import TurnOnSVG from "$lib/assets/icons/turn-on.svg";
+  import TrophySVG from "$lib/assets/icons/trophy.svg";
+  import CryingFaceSVG from "$lib/assets/icons/crying-face.svg";
+
   import BombSVG from "$lib/assets/bomb.svg";
   import TimerBar from "$lib/components/TimerBar.svelte";
+  import Banner from "$lib/components/Banner.svelte";
 
   type Tile = {
     state: "hidden" | "revealed";
@@ -70,6 +77,11 @@
     startTime2 = now;
     endTime2 = now + 5000;
   }
+
+  let showTimeoutBanner = $state(false);
+  let showTurnBanner = $state(false);
+  let showWinBanner = $state(false);
+  let showLoseBanner = $state(false);
 </script>
 
 <div class="absolute bottom-8 right-8">
@@ -90,6 +102,31 @@
     onclick={testTimer2}
   >
     Timer 2
+  </button>
+  <br />
+  <button
+    class="hover:brightness-120 rounded bg-green-500 px-4 py-3 text-white hover:cursor-pointer"
+    onclick={() => (showTimeoutBanner = !showTimeoutBanner)}
+  >
+    Timeout
+  </button>
+  <button
+    class="hover:brightness-120 rounded bg-green-500 px-4 py-3 text-white hover:cursor-pointer"
+    onclick={() => (showTurnBanner = !showTurnBanner)}
+  >
+    Turn banner
+  </button>
+  <button
+    class="hover:brightness-120 rounded bg-green-500 px-4 py-3 text-white hover:cursor-pointer"
+    onclick={() => (showWinBanner = !showWinBanner)}
+  >
+    Win
+  </button>
+  <button
+    class="hover:brightness-120 rounded bg-green-500 px-4 py-3 text-white hover:cursor-pointer"
+    onclick={() => (showLoseBanner = !showLoseBanner)}
+  >
+    Lose
   </button>
 </div>
 
@@ -128,6 +165,19 @@
     {/if}
   </div>
 {/snippet}
+
+{#if showTimeoutBanner}
+  <Banner iconSource={AlarmSVG} bottomText="Time out!" />
+{/if}
+{#if showTurnBanner}
+  <Banner iconSource={TurnOnSVG} bottomText="Your turn!" />
+{/if}
+{#if showWinBanner}
+  <Banner iconSource={TrophySVG} topText="You win!" bottomText="Points: 12345" />
+{/if}
+{#if showLoseBanner}
+  <Banner iconSource={CryingFaceSVG} topText="You lose" bottomText="Points: 12345" />
+{/if}
 
 <div class="mx-auto h-dvh max-w-screen-xl p-4">
   <div
