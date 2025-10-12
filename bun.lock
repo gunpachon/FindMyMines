@@ -12,6 +12,7 @@
     "apps/backend": {
       "name": "backend",
       "dependencies": {
+        "@socket.io/bun-engine": "^0.0.3",
         "socket.io": "^4.8.1",
       },
       "devDependencies": {
@@ -215,6 +216,8 @@
     "@rollup/rollup-win32-x64-gnu": ["@rollup/rollup-win32-x64-gnu@4.52.4", "", { "os": "win32", "cpu": "x64" }, "sha512-UF9KfsH9yEam0UjTwAgdK0anlQ7c8/pWPU2yVjyWcF1I1thABt6WXE47cI71pGiZ8wGvxohBoLnxM04L/wj8mQ=="],
 
     "@rollup/rollup-win32-x64-msvc": ["@rollup/rollup-win32-x64-msvc@4.52.4", "", { "os": "win32", "cpu": "x64" }, "sha512-bf9PtUa0u8IXDVxzRToFQKsNCRz9qLYfR/MpECxl4mRoWYjAeFjgxj1XdZr2M/GNVpT05p+LgQOHopYDlUu6/w=="],
+
+    "@socket.io/bun-engine": ["@socket.io/bun-engine@0.0.3", "", { "peerDependencies": { "typescript": "^5" } }, "sha512-OK2ZObq9hKsxyAcV7xDTcWGubBmfEY3Lt4nb04K+HlYl9G5PDgrY9hxJm9uV+B0xo3MhKFrgdg9VQsVZ3pbT/g=="],
 
     "@socket.io/component-emitter": ["@socket.io/component-emitter@3.1.2", "", {}, "sha512-9BCxFwvbGg/RsZK9tjXd8s4UcwR0MWeFQ1XEKIQVVvAGJyINdrqKMcTRyLoK8Rse1GjzLV9cwjWV1olXRWEXVA=="],
 
