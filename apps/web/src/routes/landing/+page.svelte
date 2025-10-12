@@ -13,13 +13,6 @@
   let selectedAvatarIdx = $state<number | null>(null);
   let nickname = $state("");
 
-  let showIntro = $state(true);
-  onMount(() => {
-    const t = setTimeout(() => {
-      showIntro = false;
-    }, 1200);
-    return () => clearTimeout(t);
-  });
 
   function selectAvatar(index: number) {
     selectedAvatarIdx = index;
@@ -40,9 +33,6 @@
   }
 </script>
 
-{#if showIntro}
-  <div class="fixed inset-0 z-0 animate-fade-grid bg-grid"></div>
-{/if}
 
 <div class="relative z-10 mx-auto h-dvh max-w-4xl p-4">
   <div class="flex h-full flex-col items-center justify-center gap-2">
@@ -77,7 +67,7 @@
                   class={twMerge(
                     "grid h-16 w-16 place-items-center rounded-xl border-2 bg-white p-2 shadow-sm transition",
                     selectedAvatarIdx === i
-                      ? "border-blue-500 ring-4 ring-blue-100"
+                      ? "border-blue-500 ring-4 ring-blue-100 bg-be-mine-light-blue"
                       : "border-black/10 hover:brightness-105",
                   )}
                   onclick={() => selectAvatar(i)}
