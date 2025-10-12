@@ -5,7 +5,7 @@
   interface Props {
     start: number;
     end: number;
-    variant: "green" | "red";
+    variant: "left" | "right";
   }
 
   let { start, end, variant }: Props = $props();
@@ -41,11 +41,12 @@
   });
 </script>
 
-<div class="h-6 w-full overflow-hidden rounded-lg bg-gray-300">
+<div class="h-6 w-full overflow-hidden rounded-lg border border-gray-400 bg-gray-300">
   <div
-    class="h-full"
-    class:bg-be-mine-green={variant === "green"}
-    class:bg-be-mine-red={variant === "red"}
-    style:width={tween.current <= 1 ? (1 - tween.current) * 100 + "%" : "0%"}
+    class="h-full rounded-md"
+    class:ml-auto={variant === "right"}
+    class:bg-be-mine-green={variant === "left"}
+    class:bg-be-mine-red={variant === "right"}
+    style:width={Math.max(0, 1 - tween.current) * 100 + "%"}
   ></div>
 </div>

@@ -6,14 +6,16 @@
   --color-be-mine-gray: #445871;
   --color-be-mine-green: #83b89a;
   --color-be-mine-red: #dd2e44;
-  --color-be-mine-dark-gray: #31373D;
+  --color-light-gray: #ccd6dd;
+  --color-be-mine-dark-gray: #31373d;
   --color-be-mine-light-gray: #495565;
-  --color-be-mine-light-blue: #EFF6FE;
+  --color-be-mine-light-blue: #eff6fe;
 
   --animate-floating: floating 5s infinite ease-in-out;
 
   @keyframes floating {
-    0%, 100% {
+    0%,
+    100% {
       transform: translateY(-25%);
     }
     50% {
