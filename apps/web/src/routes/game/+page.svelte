@@ -2,6 +2,9 @@
   import { twMerge } from "tailwind-merge";
   import Score from "$lib/components/Score.svelte";
 
+  import { backIn, backOut } from "svelte/easing";
+  import { fly } from "svelte/transition";
+
   import TileSVG from "$lib/assets/tile.svg";
   import TileGreenSVG from "$lib/assets/tile-green.svg";
   import TileEmptySVG from "$lib/assets/tile-empty.svg";
@@ -15,6 +18,7 @@
   import BombSVG from "$lib/assets/bomb.svg";
   import TimerBar from "$lib/components/TimerBar.svelte";
   import Banner from "$lib/components/Banner.svelte";
+  import Button from "$lib/components/Button.svelte";
 
   type Tile = {
     state: "hidden" | "revealed";
@@ -82,6 +86,32 @@
   let showTurnBanner = $state(false);
   let showWinBanner = $state(false);
   let showLoseBanner = $state(false);
+
+  let timeoutBannerTimeout: ReturnType<typeof setTimeout> | undefined = undefined;
+  let turnBannerTimeout: ReturnType<typeof setTimeout> | undefined = undefined;
+
+  function showBanner(variant: "timeout" | "turn" | "win" | "lose") {
+    const duration = 1500;
+
+    switch (variant) {
+      case "timeout":
+        showTimeoutBanner = true;
+        clearTimeout(timeoutBannerTimeout);
+        timeoutBannerTimeout = setTimeout(() => (showTimeoutBanner = false), duration);
+        break;
+      case "turn":
+        showTurnBanner = true;
+        clearTimeout(turnBannerTimeout);
+        turnBannerTimeout = setTimeout(() => (showTurnBanner = false), duration);
+        break;
+      case "win":
+        showWinBanner = !showWinBanner;
+        break;
+      case "lose":
+        showLoseBanner = !showLoseBanner;
+        break;
+    }
+  }
 </script>
 
 <div class="absolute bottom-8 right-8">
@@ -106,25 +136,27 @@
   <br />
   <button
     class="hover:brightness-120 rounded bg-green-500 px-4 py-3 text-white hover:cursor-pointer"
-    onclick={() => (showTimeoutBanner = !showTimeoutBanner)}
+    onclick={() => showBanner("timeout")}
   >
     Timeout
   </button>
   <button
     class="hover:brightness-120 rounded bg-green-500 px-4 py-3 text-white hover:cursor-pointer"
-    onclick={() => (showTurnBanner = !showTurnBanner)}
+    onclick={() => showBanner("turn")}
   >
     Turn banner
   </button>
   <button
     class="hover:brightness-120 rounded bg-green-500 px-4 py-3 text-white hover:cursor-pointer"
-    onclick={() => (showWinBanner = !showWinBanner)}
+    class:bg-green-700={showWinBanner}
+    onclick={() => showBanner("win")}
   >
     Win
   </button>
   <button
     class="hover:brightness-120 rounded bg-green-500 px-4 py-3 text-white hover:cursor-pointer"
-    onclick={() => (showLoseBanner = !showLoseBanner)}
+    class:bg-green-700={showLoseBanner}
+    onclick={() => showBanner("lose")}
   >
     Lose
   </button>
@@ -165,16 +197,56 @@
 {/snippet}
 
 {#if showTimeoutBanner}
-  <Banner iconSource={AlarmSVG} bottomText="Time out!" />
+  <div
+    class="absolute inset-0 z-20 m-auto h-fit w-full p-4"
+    in:fly={{ y: 200, duration: 300, easing: backOut }}
+    out:fly={{ y: -200, duration: 300, easing: backIn }}
+  >
+    <div class="mx-auto w-full max-w-6xl">
+      <Banner iconSource={AlarmSVG} bottomText="Time out!" />
+    </div>
+  </div>
 {/if}
 {#if showTurnBanner}
-  <Banner iconSource={TurnOnSVG} bottomText="Your turn!" />
+  <div
+    class="absolute inset-0 z-20 m-auto h-fit w-full p-4"
+    in:fly={{ y: 200, duration: 300, easing: backOut }}
+    out:fly={{ y: -200, duration: 300, easing: backIn }}
+  >
+    <div class="mx-auto w-full max-w-6xl">
+      <Banner iconSource={TurnOnSVG} bottomText="Your turn!" />
+    </div>
+  </div>
 {/if}
 {#if showWinBanner}
-  <Banner iconSource={TrophySVG} topText="You win!" bottomText="Points: 12345" />
+  <div
+    class="absolute inset-0 z-20 m-auto h-fit w-full p-4"
+    in:fly={{ y: 200, duration: 300, easing: backOut }}
+    out:fly={{ y: -200, duration: 300, easing: backIn }}
+  >
+    <div class="mx-auto w-full max-w-6xl space-y-12">
+      <Banner iconSource={TrophySVG} topText="You win!" bottomText="Points: 12345" />
+      <div class="flex w-full gap-6">
+        <Button>Play again</Button>
+        <Button>Return home</Button>
+      </div>
+    </div>
+  </div>
 {/if}
 {#if showLoseBanner}
-  <Banner iconSource={CryingFaceSVG} topText="You lose" bottomText="Points: 12345" />
+  <div
+    class="absolute inset-0 z-20 m-auto h-fit w-full p-4"
+    in:fly={{ y: 200, duration: 300, easing: backOut }}
+    out:fly={{ y: -200, duration: 300, easing: backIn }}
+  >
+    <div class="mx-auto w-full max-w-6xl space-y-12">
+      <Banner iconSource={CryingFaceSVG} topText="You lose" bottomText="Points: 12345" />
+      <div class="flex w-full gap-6">
+        <Button>Play again</Button>
+        <Button>Return home</Button>
+      </div>
+    </div>
+  </div>
 {/if}
 
 <div class="mx-auto h-dvh max-w-screen-xl p-4">
