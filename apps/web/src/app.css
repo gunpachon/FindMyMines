@@ -1,1 +1,30 @@
-@import 'tailwindcss';
+@import "tailwindcss";
+
+@theme {
+  --font-pixel: "Jaro Variable";
+  --font-body: "Jersey 25";
+  --color-be-mine-gray: #445871;
+  --color-be-mine-green: #83b89a;
+  --color-be-mine-red: #dd2e44;
+  --color-be-mine-dark-gray: #31373D;
+  --color-be-mine-light-gray: #495565;
+  --color-be-mine-light-blue: #EFF6FE;
+
+  --animate-floating: floating 5s infinite ease-in-out;
+
+  @keyframes floating {
+    0%, 100% {
+      transform: translateY(-25%);
+    }
+    50% {
+      transform: none;
+    }
+  }
+}
+
+.bg-grid {
+  background-size: 40px 40px;
+  background-image:
+    linear-gradient(to right, rgba(0, 0, 0, 0.09) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.09) 1px, transparent 1px);
+}
