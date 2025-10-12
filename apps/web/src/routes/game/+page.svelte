@@ -91,7 +91,7 @@
   let turnBannerTimeout: ReturnType<typeof setTimeout> | undefined = undefined;
 
   function showBanner(variant: "timeout" | "turn" | "win" | "lose") {
-    const duration = 1500;
+    const duration = 1000;
 
     switch (variant) {
       case "timeout":
@@ -182,7 +182,10 @@
     <img
       src={tileSVGVariant}
       alt=""
-      class={twMerge("h-full w-full", state.state === "hidden" && "hover:cursor-pointer")}
+      class={twMerge(
+        "h-full w-full",
+        state.state === "hidden" && "hover:cursor-pointer hover:brightness-110",
+      )}
       draggable="false"
     />
     {#if state.state === "revealed" && state.bomb === true}
@@ -221,8 +224,8 @@
 {#if showWinBanner}
   <div
     class="absolute inset-0 z-20 m-auto h-fit w-full p-4"
-    in:fly={{ y: 200, duration: 300, easing: backOut }}
-    out:fly={{ y: -200, duration: 300, easing: backIn }}
+    in:fly={{ y: 200, duration: 500, easing: backOut }}
+    out:fly={{ y: -200, duration: 500, easing: backIn }}
   >
     <div class="mx-auto w-full max-w-6xl space-y-12">
       <Banner iconSource={TrophySVG} topText="You win!" bottomText="Points: 12345" />
@@ -236,8 +239,8 @@
 {#if showLoseBanner}
   <div
     class="absolute inset-0 z-20 m-auto h-fit w-full p-4"
-    in:fly={{ y: 200, duration: 300, easing: backOut }}
-    out:fly={{ y: -200, duration: 300, easing: backIn }}
+    in:fly={{ y: 200, duration: 500, easing: backOut }}
+    out:fly={{ y: -200, duration: 500, easing: backIn }}
   >
     <div class="mx-auto w-full max-w-6xl space-y-12">
       <Banner iconSource={CryingFaceSVG} topText="You lose" bottomText="Points: 12345" />
