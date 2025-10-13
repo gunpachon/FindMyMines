@@ -7,7 +7,6 @@
   import GhostAvatar from "$lib/assets/ghost-avatar.svg";
   import RobotAvatar from "$lib/assets/robot-avatar.svg";
   import Button from "$lib/components/Button.svelte";
-  import { onMount } from "svelte";
 
   const avatars = [BombAvatar, BoomAvatar, GhostAvatar, RobotAvatar, CatAvatar] as const;
   let selectedAvatarIdx = $state<number | null>(null);
