@@ -36,17 +36,17 @@
 
   .animate-dot-1 {
     animation: dotAnimation 1.5s infinite;
-    animation-delay: 0.5s;
+    animation-delay: 0s;
   }
 
   .animate-dot-2 {
     animation: dotAnimation 1.5s infinite;
-    animation-delay: 1s;
+    animation-delay: 0.5s;
   }
 
   .animate-dot-3 {
     animation: dotAnimation 1.5s infinite;
-    animation-delay: 1.5s;
+    animation-delay: 1s;
   }
 </style>
 
