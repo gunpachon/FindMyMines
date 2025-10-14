@@ -15,44 +15,43 @@ io.bind(engine);
 
 io.on("connection", (socket) => {
   // game setup
-  if (io.of("/").sockets.size>2){
+  if (io.of("/").sockets.size > 2) {
     socket.disconnect();
-    console.log("Too many clients!!")
+    console.log("Too many clients!!");
   }
   io.emit("activeConnections", io.of("/").sockets.size);
   console.log(`# of Connected Clients: ${io.of("/").sockets.size}`);
 
   //on start
-  socket.on("join", ()=>{
-    const state = onJoin(socket,name,code); //how to connect -> to be discussed
-    io.emit("joinState",state)
+  socket.on("join", () => {
+    const state = onJoin(socket, name, code); //how to connect -> to be discussed
+    io.emit("joinState", state);
   });
 
   //on create
-  socket.on("create", ()=>{
+  socket.on("create", () => {
     const state = onCreate(mode);
-    io.emit("createState",state)
+    io.emit("createState", state);
   });
 
   //on click
-  socket.on("click",()=>{
+  socket.on("click", () => {
     const state = onClick(code, socket, tileIndex);
-    io.emit("clickState",state);
+    io.emit("clickState", state);
   });
 
   //on reset
-  socket.on("reset",()=>{
-    const state = onReset(code)
-    io.emit("resetGameState",state)
-});
+  socket.on("reset", () => {
+    const state = onReset(code);
+    io.emit("resetGameState", state);
+  });
 
   //on disconnect -> not done
   socket.on("disconnect", () => {
     io.emit("activeConnections", io.of("/").sockets.size);
-    console.log(`# of Connected Clients: ${io.of("/").sockets.size}`)
+    console.log(`# of Connected Clients: ${io.of("/").sockets.size}`);
   });
 });
-
 
 // export default {
 //   hostname: "0.0.0.0",

@@ -1,211 +1,216 @@
-import { Socket } from "socket.io";
-import type { Board, Game,Tile } from "./types.ts"
+import type { Board, Game, Tile } from "./types.ts";
 
-
-function getRandomInt(max: number){
-    return Math.floor(Math.random()*max);
+function getRandomInt(max: number) {
+  return Math.floor(Math.random() * max);
 }
-function getTile(board:Board, index:[number,number]){
-    if(board[index[0]]!== undefined){
-        const row = board[index[0]]
-        if(row!==undefined){
-            if (row[index[1]]!==undefined){
-                return row[index[1]];
-            }
-            return undefined;
-        }
-        return undefined;
+function getTile(board: Board, index: [number, number]) {
+  if (board[index[0]] !== undefined) {
+    const row = board[index[0]];
+    if (row !== undefined) {
+      if (row[index[1]] !== undefined) {
+        return row[index[1]];
+      }
+      return undefined;
     }
     return undefined;
+  }
+  return undefined;
 }
-function randomizeBomb(board:Board,bombNum:number){
-    let count=0
-    while(count<bombNum)
-    {
-        const index:[number,number] = [getRandomInt(6),getRandomInt(6)]
-        const tile = getTile(board,index)
-        if(tile!==undefined){
-            if (tile.bomb==false){
-                tile.bomb=true;
-                count++;
-            }
-        }
+function randomizeBomb(board: Board, bombNum: number) {
+  let count = 0;
+  while (count < bombNum) {
+    const index: [number, number] = [getRandomInt(6), getRandomInt(6)];
+    const tile = getTile(board, index);
+    if (tile !== undefined) {
+      if (tile.bomb == false) {
+        tile.bomb = true;
+        count++;
+      }
     }
-    return board
+  }
+  return board;
 }
-function createBoard(rowSize:number,colSize:number){
-    const board:Board =[];
-    for (let i=0;i<rowSize;i++){
-        const row:Tile[] = [];
-        for(let j=0;j<colSize;j++){
-            row.push({
-                state: "hidden", //{"hidden", "revealed"},
-                bomb: false,
-                revealer: null, //{"Player1", "Player2"}
-                index: [i,j]
-            });
-        }
-        board.push(row);
+function createBoard(rowSize: number, colSize: number) {
+  const board: Board = [];
+  for (let i = 0; i < rowSize; i++) {
+    const row: Tile[] = [];
+    for (let j = 0; j < colSize; j++) {
+      row.push({
+        state: "hidden", //{"hidden", "revealed"},
+        bomb: false,
+        revealer: null, //{"Player1", "Player2"}
+        index: [i, j],
+      });
     }
-    randomizeBomb(board,11)
-    return board
+    board.push(row);
+  }
+  randomizeBomb(board, 11);
+  return board;
 }
 
 let timeout: ReturnType<typeof setTimeout> | undefined = undefined;
-function updateTurn(game:Game, onStart:boolean){
-    if(onStart==true){
-        game.currentTurn=getRandomInt(2);
+function updateTurn(game: Game, onStart: boolean) {
+  if (onStart == true) {
+    game.currentTurn = getRandomInt(2);
+  } else {
+    clearTimeout(timeout);
+    if (game.currentTurn == 0) {
+      game.currentTurn++;
+    } else {
+      game.currentTurn = 0;
     }
-    else{
-        clearTimeout(timeout);
-        if(game.currentTurn==0){game.currentTurn++;}
-        else {game.currentTurn =  0;}
-
-    } 
-    game.turnStartTime=Date.now();
-    game.turnEndTime=game.turnStartTime+10000;
-    // whose turn?
-    const turn = game.currentTurn;
-    timeout = setTimeout(() => {
-        // Time is up
-        const currentTurnPlayer = game.players[turn];
-        if (currentTurnPlayer === undefined) throw new Error();
-        currentTurnPlayer.emit("timeOut")
-        updateTurn(game, false);
-    }, game.turnEndTime - Date.now());
-    return game;
+  }
+  game.turnStartTime = Date.now();
+  game.turnEndTime = game.turnStartTime + 10000;
+  // whose turn?
+  const turn = game.currentTurn;
+  timeout = setTimeout(() => {
+    // Time is up
+    const currentTurnPlayer = game.players[turn];
+    if (currentTurnPlayer === undefined) throw new Error();
+    currentTurnPlayer.emit("timeOut");
+    updateTurn(game, false);
+  }, game.turnEndTime - Date.now());
+  return game;
 }
-const gameMap = new Map<string, Game>()
+const gameMap = new Map<string, Game>();
 function generateid() {
-    var result           = '';
-    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    var charactersLength = characters.length;
-    for ( var i = 0; i < 8; i++ ) {
-        result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    if(gameMap.has(result)){
-        generateid();
-    }
-    return result;
+  var result = "";
+  var characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  var charactersLength = characters.length;
+  for (var i = 0; i < 8; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  if (gameMap.has(result)) {
+    generateid();
+  }
+  return result;
 }
 
-function onStart(game:Game,replay:boolean){
-    if (game !== undefined){
-        game.status="in-progress";
-        //console.log(startGame.board===constBoard) //2
-        //game.board = createBoard(6,6);
-        const newTurn = updateTurn(game,true)
-        return newTurn; 
-    }else{return;}
+function onStart(game: Game, replay: boolean) {
+  if (game !== undefined) {
+    game.status = "in-progress";
+    //console.log(startGame.board===constBoard) //2
+    //game.board = createBoard(6,6);
+    const newTurn = updateTurn(game, true);
+    return newTurn;
+  } else {
+    return;
+  }
 }
 
-export function onCreate(mode:string){
-    const code = generateid()
-    gameMap.set(code,{
-        code:code,
-        status: "waiting", //{"waiting", "in-progress", "ended"}
-        mode: mode, //{"classic","zen","blind"}
-        players: [],
-        currentTurn:0,
-        board:createBoard(6,6),
-        turnStartTime: null,
-        turnEndTime: null,
-        bombFound:0
-    })
-    return gameMap.get(code);
+export function onCreate(mode: string) {
+  const code = generateid();
+  gameMap.set(code, {
+    code: code,
+    status: "waiting", //{"waiting", "in-progress", "ended"}
+    mode: mode, //{"classic","zen","blind"}
+    players: [],
+    currentTurn: 0,
+    board: createBoard(6, 6),
+    turnStartTime: null,
+    turnEndTime: null,
+    bombFound: 0,
+  });
+  return gameMap.get(code);
 }
-export function onJoin(socket:any,name:string,code:string){ //change any to Socket for actual
-    const game = gameMap.get(code)
-    if(game!==undefined)
-    if (game !== undefined){
-        game.players.push({
-            name: name,
-            score: 0,
-            socketID: socket.id,
-            emit: (event: string) => socket.emit(event)
-        })
-        if(game.players.length==2){
-            const startGame = onStart(game,false)
-            if (startGame !== undefined){
-                gameMap.set(code, startGame)
-            }
-            return gameMap.get(code);
-        }
-    }else{return;}
-    return gameMap.get(code)
-}
-
-export function onClick(code:string, socket:any, tileIndex:[number,number]){ //change any to Socket for actual
-    const game = gameMap.get(code);
-    if(game != undefined){
-        const turnClicker = game.players[game.currentTurn]
-        const tile = getTile(game.board,tileIndex)
-        if(turnClicker!==undefined && tile !==undefined){
-            console.log(socket.id, turnClicker.socketID)
-            if(socket.id!=turnClicker.socketID)
-                return gameMap.get(code);
-            if(tile.state=='revealed')
-                return gameMap.get(code); 
-            if(tile.bomb==true){
-                turnClicker.score++;
-                game.bombFound++;
-            }
-            tile.state='revealed';
-            tile.revealer=turnClicker.socketID;
-            console.log(tile)
-            const newGameState = updateTurn(game,false); 
-                if(game.bombFound===11){
-                    const opponent = newGameState.players[newGameState.currentTurn]
-                    game.status = 'ended'
-                    if(opponent!==undefined){
-                        opponent.emit("Lose")
-                    }
-                    socket.emit("Win")
-                    clearTimeout(timeout)
-                    return gameMap.get(code);//turn in game is not actually updated(?)
-                }
-            gameMap.set(code, newGameState);
-            return gameMap.get(code)
+export function onJoin(socket: any, name: string, code: string) {
+  //change any to Socket for actual
+  const game = gameMap.get(code);
+  if (game !== undefined)
+    if (game !== undefined) {
+      game.players.push({
+        name: name,
+        score: 0,
+        socketID: socket.id,
+        emit: (event: string) => socket.emit(event),
+      });
+      if (game.players.length == 2) {
+        const startGame = onStart(game, false);
+        if (startGame !== undefined) {
+          gameMap.set(code, startGame);
         }
         return gameMap.get(code);
+      }
+    } else {
+      return;
     }
-    return gameMap.get(code);
+  return gameMap.get(code);
 }
-export function onReset(code:string){ //not done yet
-    const game = gameMap.get(code)
-    if(game !== undefined){
-        game.currentTurn=0;
-        game.turnStartTime=null;
-        game.turnEndTime=null;
-        game.bombFound=0;
-        for (let i=0;i<game.players.length;i++){
-            const player = game.players[i]
-            if(player !==undefined)
-                player.score=0;
+
+export function onClick(
+  code: string,
+  socket: any,
+  tileIndex: [number, number]
+) {
+  //change any to Socket for actual
+  const game = gameMap.get(code);
+  if (game != undefined) {
+    const turnClicker = game.players[game.currentTurn];
+    const tile = getTile(game.board, tileIndex);
+    if (turnClicker !== undefined && tile !== undefined) {
+      console.log(socket.id, turnClicker.socketID);
+      if (socket.id != turnClicker.socketID) return gameMap.get(code);
+      if (tile.state == "revealed") return gameMap.get(code);
+      if (tile.bomb == true) {
+        turnClicker.score++;
+        game.bombFound++;
+      }
+      tile.state = "revealed";
+      tile.revealer = turnClicker.socketID;
+      console.log(tile);
+      const newGameState = updateTurn(game, false);
+      if (game.bombFound === 11) {
+        const opponent = newGameState.players[newGameState.currentTurn];
+        game.status = "ended";
+        if (opponent !== undefined) {
+          opponent.emit("Lose");
         }
-        const startNewGame = onStart(game,false)
-        if(startNewGame!==undefined)
-            gameMap.set(code, startNewGame)
+        socket.emit("Win");
+        clearTimeout(timeout);
+        return gameMap.get(code); //turn in game is not actually updated(?)
+      }
+      gameMap.set(code, newGameState);
+      return gameMap.get(code);
     }
     return gameMap.get(code);
+  }
+  return gameMap.get(code);
 }
-export function onReplay(code:string){ //not done yet
-    const game = gameMap.get(code)
-    if(game !== undefined){
-        if(game.status=='ended'){
-            game.bombFound=0;
-            for (let i=0;i<game.players.length;i++){
-                const player = game.players[i]
-                if(player !==undefined)
-                    player.score=0;
-            }
-            game.status="in-progress";
-            const startNewGame = updateTurn(game, false) //start with winner of last game
-            if(startNewGame!==undefined)
-                gameMap.set(code, startNewGame)
-        }
+export function onReset(code: string) {
+  //not done yet
+  const game = gameMap.get(code);
+  if (game !== undefined) {
+    game.currentTurn = 0;
+    game.turnStartTime = null;
+    game.turnEndTime = null;
+    game.bombFound = 0;
+    for (let i = 0; i < game.players.length; i++) {
+      const player = game.players[i];
+      if (player !== undefined) player.score = 0;
     }
-    return gameMap.get(code);
+    const startNewGame = onStart(game, false);
+    if (startNewGame !== undefined) gameMap.set(code, startNewGame);
+  }
+  return gameMap.get(code);
+}
+export function onReplay(code: string) {
+  //not done yet
+  const game = gameMap.get(code);
+  if (game !== undefined) {
+    if (game.status == "ended") {
+      game.bombFound = 0;
+      for (let i = 0; i < game.players.length; i++) {
+        const player = game.players[i];
+        if (player !== undefined) player.score = 0;
+      }
+      game.status = "in-progress";
+      const startNewGame = updateTurn(game, false); //start with winner of last game
+      if (startNewGame !== undefined) gameMap.set(code, startNewGame);
+    }
+  }
+  return gameMap.get(code);
 }
 /*type mockSocket = {
     id:string,
@@ -330,5 +335,3 @@ if(gameState!==undefined){
     gameState = onReset(gameState.code)
     print(gameState,undefined)
 }*/
-    
-    
