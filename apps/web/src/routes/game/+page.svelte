@@ -19,12 +19,16 @@
   import TimerBar from "$lib/components/TimerBar.svelte";
   import Banner from "$lib/components/Banner.svelte";
   import Button from "$lib/components/Button.svelte";
+  import { gameState } from "$lib/state.svelte";
 
   type Tile = {
     state: "hidden" | "revealed";
     bomb: boolean | undefined;
     revealer: "Player1" | "Player2" | null;
   };
+
+  let player1score = $derived(gameState.state?.players.at(0)?.score ?? -1);
+  let player2score = $derived(gameState.state?.players.at(1)?.score ?? -2);
 
   let board: Tile[][] = $state(
     Array.from({ length: 6 }, () =>
@@ -257,11 +261,11 @@
     class="grid h-full w-full grid-cols-[max-content_1fr_max-content] grid-rows-[auto_1fr] gap-x-12 gap-y-6"
   >
     <div class="col-span-1 col-start-1 row-start-1 shrink-0 space-y-6">
-      <Score name="Player 1" score={10} variant="left" />
+      <Score name="Player 1" score={player1score} variant="left" />
       <TimerBar start={startTime1} end={endTime1} variant="left" />
     </div>
     <div class="col-span-1 col-start-3 row-start-1 shrink-0 space-y-6">
-      <Score name="Player 2" score={10} variant="right" />
+      <Score name="Player 2" score={player2score} variant="right" />
       <TimerBar start={startTime2} end={endTime2} variant="right" />
     </div>
     <div

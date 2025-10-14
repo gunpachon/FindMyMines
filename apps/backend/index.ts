@@ -15,23 +15,29 @@ io.bind(engine);
 
 io.on("connection", (socket) => {
   // game setup
-  if (io.of("/").sockets.size > 2) {
-    socket.disconnect();
-    console.log("Too many clients!!");
-  }
   io.emit("activeConnections", io.of("/").sockets.size);
   console.log(`# of Connected Clients: ${io.of("/").sockets.size}`);
 
   //on start
-  socket.on("join", () => {
+  socket.on("join", async (name: string, code: string) => {
     const state = onJoin(socket, name, code); //how to connect -> to be discussed
-    io.emit("joinState", state);
+
+    const socketsInRoom = io.sockets.adapter.rooms.get(code)?.size;
+
+    console.log(socketsInRoom);
+
+    if (socketsInRoom !== undefined && socketsInRoom >= 2) {
+      socket.emit("error", "too many clients");
+    } else {
+      socket.join(code);
+      io.to(code).emit("gameState", state);
+    }
   });
 
   //on create
-  socket.on("create", () => {
+  socket.on("create", (mode: string) => {
     const state = onCreate(mode);
-    io.emit("createState", state);
+    socket.emit("created", state?.code);
   });
 
   //on click
@@ -53,9 +59,9 @@ io.on("connection", (socket) => {
   });
 });
 
-// export default {
-//   hostname: "0.0.0.0",
-//   port: 3000,
-//   // idleTimeout: 30, // must be greater than the "pingInterval" option of the engine, which defaults to 25 seconds
-//   ...engine.handler(),
-// };
+export default {
+  hostname: "0.0.0.0",
+  port: 3000,
+  // idleTimeout: 30, // must be greater than the "pingInterval" option of the engine, which defaults to 25 seconds
+  ...engine.handler(),
+};

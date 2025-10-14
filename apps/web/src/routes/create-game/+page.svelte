@@ -4,56 +4,63 @@
   import BombSVG from "$lib/assets/bomb.svg";
   import Button from "$lib/components/Button.svelte";
   import { twMerge } from "tailwind-merge";
+  import { socketContext } from "$lib/context";
 
-  const Modes = ["General", "Zen", "Blind"] as const;
-  const ModeIcons = [BombSVG, ZenSVG, BlindSVG];
-
-  let selectGameIdx = $state<number | null>(null);
-
-  function selectMode(index: number) {
-    selectGameIdx = index;
+  interface Mode {
+    id: string;
+    name: string;
+    icon: string;
   }
 
-  function canProceed() {
-    return selectGameIdx !== null;
-  }
+  const modes: Mode[] = [
+    { id: "general", name: "General", icon: BombSVG },
+    { id: "zen", name: "Zen", icon: ZenSVG },
+    { id: "blind", name: "Blind", icon: BlindSVG },
+  ];
+
+  let selectedMode = $state<string | undefined>();
+
+  let canProceed = $derived(selectedMode !== undefined);
+
+  const socket = socketContext.getOr(null);
 
   function handleJoin() {
-    if (!canProceed()) return;
-    // todo: join game
+    if (!canProceed) return;
+    if (socket === null) return;
+
+    console.log(socket);
+
+    socket.emit("create", selectedMode);
   }
 </script>
 
-{#snippet gameType(name: string, icon: string, isSelected: boolean, onclick: () => void)}
-  <button
+{#snippet gameType(mode: Mode)}
+  <label
     class={twMerge(
-      "w-64 h-64 p-8 rounded-2xl shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] outline-1 outline-offset-[-1px] outline-slate-300 flex flex-col justify-center items-center gap-5 hover:ring-blue-500 hover:border-blue-500 hover:ring-4",
-      isSelected === true
-        ? "border-blue-500 ring-4 ring-blue-500 bg-be-mine-light-blue"
-        : "bg-white border-black/10 hover:brightness-105",
+      "flex h-64 w-64 flex-col items-center justify-center gap-5 rounded-2xl p-8 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] outline-1 outline-offset-[-1px] outline-slate-300 hover:border-blue-500 hover:ring-4 hover:ring-blue-500",
+      selectedMode === mode.id
+        ? "bg-be-mine-light-blue border-blue-500 ring-4 ring-blue-500"
+        : "border-black/10 bg-white hover:brightness-105",
     )}
-    {onclick}
   >
-    <img src={icon} alt="" class="w-32 h-32 relative" />
-    <div class="self-stretch text-center justify-start text-black text-4xl font-normal">
-      {name}
+    <input type="radio" name="mode" class="hidden" value={mode.id} bind:group={selectedMode} />
+    <img src={mode.icon} alt="" class="relative h-32 w-32" />
+    <div class="justify-start self-stretch text-center text-4xl font-normal text-black">
+      {mode.name}
     </div>
-  </button>
+  </label>
 {/snippet}
 
-<div class="w-full min-h-dvh inline-flex flex-col items-center gap-12 justify-center">
-  <div class="self-stretch h-12 text-center justify-start text-neutral-700 text-5xl font-normal">
+<div class="inline-flex min-h-dvh w-full flex-col items-center justify-center gap-12">
+  <div class="h-12 justify-start self-stretch text-center text-5xl font-normal text-neutral-700">
     Choose Game Mode
   </div>
-  <div data-property-1="Default" class="inline-flex justify-start items-center gap-20">
-    {#each Modes as gameMode, i}
-      {@render gameType(gameMode, ModeIcons[i], selectGameIdx === i, () => (selectGameIdx = i))}
+  <fieldset data-property-1="Default" class="inline-flex items-center justify-start gap-20">
+    {#each modes as mode}
+      {@render gameType(mode)}
     {/each}
-  </div>
-  <div class="w-md flex gap-4 justify-center items-center">
-    <Button disabled={!canProceed()} onclick={handleJoin}>Create Game</Button>
+  </fieldset>
+  <div class="w-md flex items-center justify-center gap-4">
+    <Button disabled={!canProceed} onclick={handleJoin}>Create Game</Button>
   </div>
 </div>
-
-
-
