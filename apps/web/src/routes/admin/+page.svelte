@@ -7,7 +7,7 @@
   let connectedClients = $state<number | undefined>();
 
   const socket = browser
-    ? io(new URL("/admin", env.PUBLIC_BACKEND_HOST ?? "http://localhost:3000"))
+    ? io(new URL("/admin", env.PUBLIC_BACKEND_HOST ?? "http://localhost:3000").toString())
     : null;
 
   if (browser) {
