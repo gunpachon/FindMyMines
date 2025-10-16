@@ -13,10 +13,13 @@ const engine = new Engine({
 
 io.bind(engine);
 
+function emitSize() {
+  io.of("/admin").emit("clients", io.of("/").sockets.size);
+}
+
 io.on("connection", (socket) => {
   // game setup
-  io.emit("activeConnections", io.of("/").sockets.size);
-  console.log(`# of Connected Clients: ${io.of("/").sockets.size}`);
+  emitSize();
 
   registerHandlers(socket, io);
 
@@ -28,9 +31,12 @@ io.on("connection", (socket) => {
 
   //on disconnect -> not done
   socket.on("disconnect", () => {
-    io.emit("activeConnections", io.of("/").sockets.size);
-    console.log(`# of Connected Clients: ${io.of("/").sockets.size}`);
+    emitSize();
   });
+});
+
+io.of("/admin").on("connection", (socket) => {
+  socket.emit("clients", io.of("/").sockets.size);
 });
 
 export default {
