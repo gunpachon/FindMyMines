@@ -1,11 +1,14 @@
 <script lang="ts">
   import { browser } from "$app/environment";
+  import { env } from "$env/dynamic/public";
   import Button from "$lib/components/Button.svelte";
   import { io } from "socket.io-client";
 
   let connectedClients = $state<number | undefined>();
 
-  const socket = browser ? io("https://bemine-backend.ideal.sh/admin") : null;
+  const socket = browser
+    ? io(new URL("/admin", env.PUBLIC_BACKEND_HOST ?? "http://localhost:3000"))
+    : null;
 
   if (browser) {
     socket?.on("clients", (clients) => {
