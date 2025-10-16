@@ -7,44 +7,45 @@
   import GhostAvatar from "$lib/assets/ghost-avatar.svg";
   import RobotAvatar from "$lib/assets/robot-avatar.svg";
   import Button from "$lib/components/Button.svelte";
+  import { goto } from "$app/navigation";
+
+  import { setupState } from "$lib/state.svelte";
 
   const avatars = [BombAvatar, BoomAvatar, GhostAvatar, RobotAvatar, CatAvatar] as const;
-  let selectedAvatarIdx = $state<number | null>(null);
-  let nickname = $state("");
-
 
   function selectAvatar(index: number) {
-    selectedAvatarIdx = index;
+    setupState.avatar = index;
   }
 
   function canProceed() {
-    return selectedAvatarIdx !== null && nickname.trim().length > 0;
+    return setupState.avatar !== undefined && setupState.name.trim().length > 0;
   }
 
   function handleCreate() {
     if (!canProceed()) return;
-    // todo: create game
+
+    goto("/create-game");
   }
 
   function handleJoin() {
     if (!canProceed()) return;
-    // todo: join game
+
+    goto("/join-game");
   }
 </script>
-
 
 <div class="relative z-10 mx-auto h-dvh max-w-4xl p-4">
   <div class="flex h-full flex-col items-center justify-center gap-2">
     <div class="flex flex-col items-start gap-0">
-      <div class="flex items-center gap-3 animate-floating">
+      <div class="animate-floating flex items-center gap-3">
         <div>
           <h1
-            class="font-pixel text-center text-8xl font-normal bg-gradient-to-r from-[#202436] via-[#2e3552] to-[#6e7d97] bg-clip-text text-transparent"
+            class="font-pixel bg-gradient-to-r from-[#202436] via-[#2e3552] to-[#6e7d97] bg-clip-text text-center text-8xl font-normal text-transparent"
           >
             BE MINE
           </h1>
           <p
-            class="self-stretch text-center justify-start text-be-mine-dark-gray text-4xl font-normal"
+            class="text-be-mine-dark-gray justify-start self-stretch text-center text-4xl font-normal"
           >
             Bomb Finding Adventure
           </p>
@@ -54,19 +55,19 @@
       </div>
     </div>
 
-    <div class="w-full rounded-3xl border border-black/10 bg-white mt-6 shadow-md p-8">
+    <div class="mt-6 w-full rounded-3xl border border-black/10 bg-white p-8 shadow-md">
       <div class="grid gap-6">
-        <div class="flex flex-col gap-4 items-center">
-          <div class="font-pixel self-stretch justify-start text-3xl font-normal text-be-mine-gray">
+        <div class="flex flex-col items-center gap-4">
+          <div class="text-be-mine-gray justify-start self-stretch text-3xl font-normal">
             Choose Your Avatar
-            <div class="flex flex-wrap items-center justify-center gap-[80px] mt-[40px]">
+            <div class="mt-[40px] flex flex-wrap items-center justify-center gap-[80px]">
               {#each avatars as avatar, i}
                 <button
                   type="button"
                   class={twMerge(
                     "grid h-16 w-16 place-items-center rounded-xl border-2 bg-white p-2 shadow-sm transition",
-                    selectedAvatarIdx === i
-                      ? "border-blue-500 ring-4 ring-blue-100 bg-be-mine-light-blue"
+                    setupState.avatar === i
+                      ? "bg-be-mine-light-blue border-blue-500 ring-4 ring-blue-100"
                       : "border-black/10 hover:brightness-105",
                   )}
                   onclick={() => selectAvatar(i)}
@@ -78,21 +79,21 @@
           </div>
         </div>
 
-        <div class="grid gap-3 mt-4">
-          <div class="self-stretch justify-start text-3xl font-normal text-be-mine-gray">
+        <div class="mt-4 grid gap-3">
+          <div class="text-be-mine-gray justify-start self-stretch text-3xl font-normal">
             Your Nickname
           </div>
           <input
             placeholder="Enter your nickname..."
-            bind:value={nickname}
-            class="justify-start text-be-mine-light-gray text-2xl font-normal w-full rounded-2xl border border-black/10 bg-white px-4 py-3 outline-none shadow-inner"
+            bind:value={setupState.name}
+            class="text-be-mine-light-gray w-full justify-start rounded-2xl border border-black/10 bg-white px-4 py-3 text-2xl font-normal shadow-inner outline-none"
           />
         </div>
       </div>
     </div>
-    <div class="w-full mt-8 grid grid-cols-2 gap-4 items-center">
+    <div class="mt-8 grid w-full grid-cols-2 items-center gap-4">
       <Button disabled={!canProceed()} onclick={handleCreate}>Create Game</Button>
-      <Button disabled={!canProceed()} onclick={handleCreate}>Join Game</Button>
+      <Button disabled={!canProceed()} onclick={handleJoin}>Join Game</Button>
     </div>
   </div>
 </div>

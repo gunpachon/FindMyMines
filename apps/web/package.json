@@ -22,6 +22,7 @@
     "@tailwindcss/vite": "^4.0.0",
     "prettier": "^3.4.2",
     "prettier-plugin-tailwindcss": "^0.6.11",
+    "runed": "^0.35.0",
     "svelte": "^5.0.0",
     "svelte-check": "^4.0.0",
     "tailwind-merge": "^3.3.1",

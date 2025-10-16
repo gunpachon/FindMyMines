@@ -3,8 +3,8 @@
   import { Tween } from "svelte/motion";
 
   interface Props {
-    start: number;
-    end: number;
+    start: number | null;
+    end: number | null;
     variant: "left" | "right";
   }
 
@@ -20,6 +20,11 @@
   $effect(() => {
     const startTime = start;
     const endTime = end;
+
+    if (startTime === null || endTime === null) {
+      tween.set(1, { duration: 0 });
+      return;
+    }
 
     tween.set((Date.now() - startTime) / (endTime - startTime), {
       duration: 0,

@@ -1,5 +1,7 @@
 <script lang="ts">
   import Button from "$lib/components/Button.svelte";
+  import { socketContext } from "$lib/context";
+  import { setupState } from "$lib/state.svelte";
 
   let roomCode = $state("");
 
@@ -7,33 +9,35 @@
     return roomCode.trim().length > 0;
   }
 
+  const socket = socketContext.getOr(null);
+
   function handleJoin() {
     if (!canProceed()) return;
-    // todo: join game
+
+    socket?.emit("join", setupState.name, roomCode);
   }
 </script>
 
 <div class="relative z-10 mx-auto h-dvh max-w-4xl p-6">
   <div class="flex h-full flex-col items-center justify-center gap-2">
-    <div class="w-full rounded-3xl border border-black/10 bg-white shadow-md p-9">
+    <div class="w-full rounded-3xl border border-black/10 bg-white p-9 shadow-md">
       <div class="grid gap-6">
-        <div class="flex flex-col gap-4 items-center">
-          <div class="font-pixel self-stretch justify-start text-3xl font-normal text-be-mine-gray">
+        <div class="flex flex-col items-center gap-4">
+          <div class="font-pixel text-be-mine-gray justify-start self-stretch text-3xl font-normal">
             Room Code
           </div>
         </div>
-        <div class="grid gap-3 mt-3">
+        <div class="mt-3 grid gap-3">
           <input
             placeholder="Enter Code..."
             bind:value={roomCode}
-            class="justify-start text-be-mine-light-gray text-2xl font-normal w-full rounded-2xl border border-black/10 bg-white px-4 py-3 outline-none shadow-inner"
+            class="text-be-mine-light-gray w-full justify-start rounded-2xl border border-black/10 bg-white px-4 py-3 text-2xl font-normal shadow-inner outline-none"
           />
         </div>
       </div>
     </div>
-    <div class="w-[400px] mt-6 gap-4 items-center">
+    <div class="mt-6 w-[400px] items-center gap-4">
       <Button disabled={!canProceed()} onclick={handleJoin}>Join Game</Button>
     </div>
   </div>
 </div>
-
