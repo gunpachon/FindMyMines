@@ -24,6 +24,7 @@
   import type { Game } from "$lib/types";
   import { browser } from "$app/environment";
   import { goto } from "$app/navigation";
+  import { onMount } from "svelte";
 
   const fallbackBoard = Array.from({ length: 6 }, (_, i) =>
     Array.from({ length: 6 }, (_, j) => ({
@@ -41,6 +42,11 @@
 
     socket?.on("win", () => showBanner("win"));
     socket?.on("lose", () => showBanner("lose"));
+
+    socket?.on("replay", () => {
+      showWinBanner = false;
+      showLoseBanner = false;
+    });
   }
 
   let isTurn = $derived(
@@ -108,6 +114,10 @@
         break;
     }
   }
+
+  function handleReplay() {
+    socket?.emit("replay");
+  }
 </script>
 
 <svelte:head>
@@ -170,7 +180,7 @@
     <div class="mx-auto w-full max-w-6xl space-y-12">
       <Banner iconSource={TrophySVG} topText="You win!" bottomText="Points: {myScore}" />
       <div class="flex w-full gap-6">
-        <Button>Play again</Button>
+        <Button onclick={handleReplay}>Play again</Button>
         <Button onclick={() => goto("/")}>Return home</Button>
       </div>
     </div>
@@ -185,7 +195,7 @@
     <div class="mx-auto w-full max-w-6xl space-y-12">
       <Banner iconSource={CryingFaceSVG} topText="You lose" bottomText="Points: {myScore}" />
       <div class="flex w-full gap-6">
-        <Button>Play again</Button>
+        <Button onclick={handleReplay}>Play again</Button>
         <Button onclick={() => goto("/")}>Return home</Button>
       </div>
     </div>

@@ -105,7 +105,26 @@ export function registerHandlers(socket: Socket, io: Server) {
       game.status = "in-progress";
       //console.log(startGame.board===constBoard) //2
       //game.board = createBoard(6,6);
-      updateTurn(game, true);
+
+      if (replay) {
+        game.board = createBoard(6, 6);
+        game.bombFound = 0;
+
+        const maxScore = game.players.reduce(
+          (acc, cur) => (cur.score > acc ? cur.score : acc),
+          -Infinity
+        );
+
+        const loserIndex = game.players.findIndex((p) => p.score < maxScore);
+
+        // Sets the current turn to be loser so that the updateTurn() will set
+        // the turn to the winning player
+        game.currentTurn = loserIndex;
+        game.players.forEach((p) => (p.score = 0));
+        updateTurn(game, false);
+      } else {
+        updateTurn(game, true);
+      }
     } else {
       return;
     }
@@ -204,6 +223,16 @@ export function registerHandlers(socket: Socket, io: Server) {
 
       io.to(room).emit("gameState", game);
     }
+  });
+
+  socket.on("replay", () => {
+    if (room === undefined) return;
+    const game = gameMap.get(room);
+    if (game === undefined) return;
+
+    startGame(game, true);
+    io.to(room).emit("replay");
+    io.to(room).emit("gameState", game);
   });
 }
 
