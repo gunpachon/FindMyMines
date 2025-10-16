@@ -14,8 +14,12 @@
 <div class="relative w-fit">
   <img src={variant === "left" ? ScoreLeftSVG : ScoreRightSVG} class="w-64 drop-shadow-lg" />
   <div class="font-pixel absolute inset-0 px-4">
-    <div class="mb-3" class:text-end={variant === "right"}>
-      <span class="text-3xl text-gray-400">{name}</span>
+    <div
+      class="mb-3 w-32 truncate text-3xl text-gray-400"
+      class:ml-auto={variant === "right"}
+      class:text-end={variant === "right"}
+    >
+      {name}
     </div>
     <div class="flex items-center justify-around">
       <div class="size-16 rounded-full bg-amber-400"></div>

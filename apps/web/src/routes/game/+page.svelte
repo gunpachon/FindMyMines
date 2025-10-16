@@ -20,70 +20,53 @@
   import Banner from "$lib/components/Banner.svelte";
   import Button from "$lib/components/Button.svelte";
   import { gameState } from "$lib/state.svelte";
+  import { socketContext } from "$lib/context";
+  import type { Game } from "$lib/types";
+  import { browser } from "$app/environment";
 
-  type Tile = {
-    state: "hidden" | "revealed";
-    bomb: boolean | undefined;
-    revealer: "Player1" | "Player2" | null;
-  };
-
-  let player1score = $derived(gameState.state?.players.at(0)?.score ?? -1);
-  let player2score = $derived(gameState.state?.players.at(1)?.score ?? -2);
-
-  let board: Tile[][] = $state(
-    Array.from({ length: 6 }, () =>
-      Array.from(
-        { length: 6 },
-
-        () =>
-          ({
-            state: "hidden",
-            bomb: undefined,
-            revealer: null,
-          }) satisfies Tile,
-      ),
-    ),
+  const fallbackBoard = Array.from({ length: 6 }, (_, i) =>
+    Array.from({ length: 6 }, (_, j) => ({
+      index: [i, j],
+      state: "hidden",
+      bomb: undefined,
+      revealer: null,
+    })),
   );
 
-  let startTime1 = $state(100);
-  let endTime1 = $state(200);
-  let startTime2 = $state(100);
-  let endTime2 = $state(200);
+  const socket = socketContext.getOr(null);
 
-  function randomizeState() {
-    board = Array.from({ length: 6 }, () =>
-      Array.from({ length: 6 }, (): Tile => {
-        const isHidden = Math.random() < 0.5 ? true : false;
-
-        if (isHidden) {
-          return {
-            state: "hidden",
-            bomb: undefined,
-            revealer: null,
-          };
-        } else {
-          return {
-            state: "revealed",
-            bomb: Math.random() < 0.5,
-            revealer: Math.random() < 0.5 ? "Player1" : "Player2",
-          };
-        }
-      }),
-    );
+  if (browser) {
+    socket?.on("timeOut", () => showBanner("timeout"));
   }
 
-  function testTimer() {
-    const now = Date.now();
+  let isTurn = $derived(
+    gameState.myIndex !== undefined && gameState.myIndex === gameState.state?.currentTurn,
+  );
 
-    startTime1 = now;
-    endTime1 = now + 5000;
+  $effect(() => {
+    if (isTurn) {
+      showBanner("turn");
+    }
+  });
+
+  let player1 = $derived(gameState.state?.players.at(0));
+  let player2 = $derived(gameState.state?.players.at(1));
+
+  function getTurnTimes(playerIndex: number, state: Game | undefined) {
+    if (state?.currentTurn !== playerIndex) return { start: null, end: null };
+
+    return {
+      start: state.turnStartTime,
+      end: state.turnEndTime,
+    };
   }
 
-  function testTimer2() {
-    const now = Date.now();
+  let player1TurnTimes = $derived(getTurnTimes(0, gameState.state));
+  let player2TurnTimes = $derived(getTurnTimes(1, gameState.state));
 
-    startTime2 = now;
-    endTime2 = now + 5000;
+  function onTileClick(x: number, y: number) {
+    showTurnBanner = false;
+    socket?.emit("click", [y, x]);
   }
 
   let showTimeoutBanner = $state(false);
@@ -118,38 +101,14 @@
   }
 </script>
 
+<svelte:head>
+  <link rel="preload" href={TileGreenSVG} as="image" type="image/svg+xml" />
+  <link rel="preload" href={TileRedSVG} as="image" type="image/svg+xml" />
+  <link rel="preload" href={TileEmptySVG} as="image" type="image/svg+xml" />
+  <link rel="preload" href={TileSVG} as="image" type="image/svg+xml" />
+</svelte:head>
+
 <div class="absolute bottom-8 right-8">
-  <button
-    class="hover:brightness-120 rounded bg-red-500 px-4 py-3 text-white hover:cursor-pointer"
-    onclick={randomizeState}
-  >
-    Random
-  </button>
-  <button
-    class="hover:brightness-120 rounded bg-blue-500 px-4 py-3 text-white hover:cursor-pointer"
-    onclick={testTimer}
-  >
-    Timer 1
-  </button>
-  <button
-    class="hover:brightness-120 rounded bg-blue-500 px-4 py-3 text-white hover:cursor-pointer"
-    onclick={testTimer2}
-  >
-    Timer 2
-  </button>
-  <br />
-  <button
-    class="hover:brightness-120 rounded bg-green-500 px-4 py-3 text-white hover:cursor-pointer"
-    onclick={() => showBanner("timeout")}
-  >
-    Timeout
-  </button>
-  <button
-    class="hover:brightness-120 rounded bg-green-500 px-4 py-3 text-white hover:cursor-pointer"
-    onclick={() => showBanner("turn")}
-  >
-    Turn banner
-  </button>
   <button
     class="hover:brightness-120 rounded bg-green-500 px-4 py-3 text-white hover:cursor-pointer"
     class:bg-green-700={showWinBanner}
@@ -166,48 +125,16 @@
   </button>
 </div>
 
-{#snippet tile(x: number, y: number, state: Tile)}
-  {@const hasBomb = state.state === "revealed" && state.bomb === true}
-  {@const tileSVGVariant = (() => {
-    if (hasBomb) {
-      switch (state.revealer) {
-        case "Player1":
-          return TileGreenSVG;
-        case "Player2":
-          return TileRedSVG;
-      }
-    } else {
-      if (state.state === "revealed") return TileEmptySVG;
-      return TileSVG;
-    }
-  })()}
-
-  <div class="relative select-none drop-shadow-md">
-    <img
-      src={tileSVGVariant}
-      alt=""
-      class={twMerge(
-        "h-full w-full",
-        state.state === "hidden" && "hover:cursor-pointer hover:brightness-110",
-      )}
-      draggable="false"
-    />
-    {#if state.state === "revealed" && state.bomb === true}
-      <img
-        src={BombSVG}
-        class="absolute inset-0 z-10 ml-1"
-        draggable="false"
-        alt="Pixel art representing a bomb"
-      />
-    {/if}
-  </div>
-{/snippet}
-
 {#if showTimeoutBanner}
+  <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
   <div
     class="absolute inset-0 z-20 m-auto h-fit w-full p-4"
     in:fly={{ y: 200, duration: 300, easing: backOut }}
     out:fly={{ y: -200, duration: 300, easing: backIn }}
+    onclick={() => (showTimeoutBanner = false)}
+    role="alert"
+    aria-live="polite"
   >
     <div class="mx-auto w-full max-w-6xl">
       <Banner iconSource={AlarmSVG} bottomText="Time out!" />
@@ -215,10 +142,15 @@
   </div>
 {/if}
 {#if showTurnBanner}
+  <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
   <div
     class="absolute inset-0 z-20 m-auto h-fit w-full p-4"
     in:fly={{ y: 200, duration: 300, easing: backOut }}
     out:fly={{ y: -200, duration: 300, easing: backIn }}
+    onclick={() => (showTurnBanner = false)}
+    role="alert"
+    aria-live="polite"
   >
     <div class="mx-auto w-full max-w-6xl">
       <Banner iconSource={TurnOnSVG} bottomText="Your turn!" />
@@ -261,12 +193,12 @@
     class="grid h-full w-full grid-cols-[max-content_1fr_max-content] grid-rows-[auto_1fr] gap-x-12 gap-y-6"
   >
     <div class="col-span-1 col-start-1 row-start-1 shrink-0 space-y-6">
-      <Score name="Player 1" score={player1score} variant="left" />
-      <TimerBar start={startTime1} end={endTime1} variant="left" />
+      <Score name={player1?.name ?? "Lorem ipsu"} score={player1?.score ?? 0} variant="left" />
+      <TimerBar start={player1TurnTimes.start} end={player1TurnTimes.end} variant="left" />
     </div>
     <div class="col-span-1 col-start-3 row-start-1 shrink-0 space-y-6">
-      <Score name="Player 2" score={player2score} variant="right" />
-      <TimerBar start={startTime2} end={endTime2} variant="right" />
+      <Score name={player2?.name ?? "Dolor sit a"} score={player2?.score ?? 0} variant="right" />
+      <TimerBar start={player2TurnTimes.start} end={player2TurnTimes.end} variant="right" />
     </div>
     <div
       class="col-span-full row-start-2 place-self-stretch xl:col-span-1 xl:row-span-full xl:row-start-1"
@@ -277,8 +209,50 @@
         >
           {#each Array.from(new Array(6), (_, i) => i) as y}
             {#each Array.from(new Array(6), (_, i) => i) as x}
+              {@const board = gameState.state?.board ?? fallbackBoard}
               {@const state = board[y][x]}
-              {@render tile(x, y, state)}
+              {@const hasBomb = state.state === "revealed" && state.bomb === true}
+              {@const tileSVGVariant = (() => {
+                if (hasBomb) {
+                  switch (state.revealer) {
+                    case 0:
+                      return TileGreenSVG;
+                    case 1:
+                      return TileRedSVG;
+                    default:
+                      return TileSVG;
+                  }
+                } else {
+                  if (state.state === "revealed") return TileEmptySVG;
+                  return TileSVG;
+                }
+              })()}
+
+              <button
+                class="relative select-none drop-shadow-md"
+                onclick={() => onTileClick(x, y)}
+                disabled={!isTurn}
+              >
+                <img
+                  src={tileSVGVariant}
+                  alt=""
+                  class={twMerge(
+                    "h-full w-full",
+                    isTurn &&
+                      state.state === "hidden" &&
+                      "hover:cursor-pointer hover:brightness-110",
+                  )}
+                  draggable="false"
+                />
+                {#if state.state === "revealed" && state.bomb === true}
+                  <img
+                    src={BombSVG}
+                    class="absolute inset-0 z-10 ml-1"
+                    draggable="false"
+                    alt="Pixel art representing a bomb"
+                  />
+                {/if}
+              </button>
             {/each}
           {/each}
         </div>

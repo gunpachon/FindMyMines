@@ -25,7 +25,7 @@
       gotoIfNotAt("/");
     }
 
-    const socket = io(":3000");
+    const socket = io("https://bemine-backend.ideal.sh/");
 
     socketContext.set(socket);
 
@@ -39,6 +39,13 @@
 
     socket.on("gameState", (state: Game) => {
       gameState.state = state;
+      gameState.myIndex = gameState.state.players.findIndex(
+        (player) => player.socketID === socket.id,
+      );
+
+      if (gameState.myIndex === -1) {
+        gameState.myIndex = undefined;
+      }
 
       if (state.status === "waiting") {
         gotoIfNotAt("/waiting");

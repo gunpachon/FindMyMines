@@ -1,13 +1,13 @@
 import { Server as Engine } from "@socket.io/bun-engine";
 import { Server } from "socket.io";
-import { onClick, onCreate, onJoin, onReset } from "./functions";
+import { registerHandlers } from "./handlers";
 
 const io = new Server();
 
 const engine = new Engine({
   path: "/socket.io/",
   cors: {
-    origin: ["http://localhost:5173"],
+    origin: ["http://localhost:5173", "https://bemine.ideal.sh"],
   },
 });
 
@@ -18,39 +18,13 @@ io.on("connection", (socket) => {
   io.emit("activeConnections", io.of("/").sockets.size);
   console.log(`# of Connected Clients: ${io.of("/").sockets.size}`);
 
-  //on start
-  socket.on("join", async (name: string, code: string) => {
-    const state = onJoin(socket, name, code); //how to connect -> to be discussed
-
-    const socketsInRoom = io.sockets.adapter.rooms.get(code)?.size;
-
-    console.log(socketsInRoom);
-
-    if (socketsInRoom !== undefined && socketsInRoom >= 2) {
-      socket.emit("error", "too many clients");
-    } else {
-      socket.join(code);
-      io.to(code).emit("gameState", state);
-    }
-  });
-
-  //on create
-  socket.on("create", (mode: string) => {
-    const state = onCreate(mode);
-    socket.emit("created", state?.code);
-  });
-
-  //on click
-  socket.on("click", () => {
-    const state = onClick(code, socket, tileIndex);
-    io.emit("clickState", state);
-  });
+  registerHandlers(socket, io);
 
   //on reset
-  socket.on("reset", () => {
-    const state = onReset(code);
-    io.emit("resetGameState", state);
-  });
+  // socket.on("reset", () => {
+  //   const state = onReset(code);
+  //   io.emit("resetGameState", state);
+  // });
 
   //on disconnect -> not done
   socket.on("disconnect", () => {

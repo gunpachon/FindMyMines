@@ -7,8 +7,8 @@ export type Player = {
 export type Tile = {
   index: [number, number];
   state: string; //{"hidden", "revealed"},
-  bomb: boolean;
-  revealer: string | null; //{"Player1", "Player2"}
+  bomb: boolean | undefined;
+  revealer: number | null; //{"Player1", "Player2"}
 };
 export type Board = Tile[][];
 export type Game = {
