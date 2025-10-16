@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { twMerge } from "tailwind-merge";
+  import { twMerge } from "$lib/twMerge";
   import Score from "$lib/components/Score.svelte";
 
-  import { backIn, backOut } from "svelte/easing";
-  import { fly } from "svelte/transition";
+  import { backIn, backOut, cubicIn, cubicOut } from "svelte/easing";
+  import { fly, scale } from "svelte/transition";
 
   import TileSVG from "$lib/assets/tile.svg";
   import TileGreenSVG from "$lib/assets/tile-green.svg";
@@ -24,7 +24,7 @@
   import type { Game } from "$lib/types";
   import { browser } from "$app/environment";
   import { goto } from "$app/navigation";
-  import { onMount } from "svelte";
+  import { onMount, tick } from "svelte";
 
   const fallbackBoard = Array.from({ length: 6 }, (_, i) =>
     Array.from({ length: 6 }, (_, j) => ({
@@ -110,7 +110,7 @@
       case "turn":
         showTurnBanner = true;
         clearTimeout(turnBannerTimeout);
-        turnBannerTimeout = setTimeout(() => (showTurnBanner = false), duration);
+        turnBannerTimeout = setTimeout(() => (showTurnBanner = false), 500);
         break;
       case "win":
         showWinBanner = !showWinBanner;
@@ -173,8 +173,8 @@
 {#if showTurnBanner}
   <div
     class="pointer-events-none absolute inset-0 z-20 m-auto h-fit w-full p-4"
-    in:fly={{ y: 200, duration: 300, easing: backOut }}
-    out:fly={{ y: -200, duration: 300, easing: backIn }}
+    in:scale={{ duration: 500, easing: cubicOut }}
+    out:scale={{ start: 2, duration: 500, easing: cubicIn }}
   >
     <div class="mx-auto w-full max-w-6xl">
       <Banner iconSource={TurnOnSVG} bottomText="Your turn!" />
@@ -188,7 +188,12 @@
     out:fly={{ y: -200, duration: 500, easing: backIn }}
   >
     <div class="mx-auto w-full max-w-6xl space-y-12">
-      <Banner iconSource={TrophySVG} topText="You win!" bottomText="Points: {myScore}" />
+      <Banner
+        iconSource={TrophySVG}
+        topText="You win!"
+        bottomText="Points: {myScore}"
+        class="bg-white/90 shadow-lg"
+      />
       <div class="flex w-full gap-6">
         <Button onclick={handleReplay} disabled={!canReplay}>Play again</Button>
         <Button onclick={handleReturn}>Return home</Button>
@@ -203,7 +208,12 @@
     out:fly={{ y: -200, duration: 500, easing: backIn }}
   >
     <div class="mx-auto w-full max-w-6xl space-y-12">
-      <Banner iconSource={CryingFaceSVG} topText="You lose" bottomText="Points: {myScore}" />
+      <Banner
+        iconSource={CryingFaceSVG}
+        topText="You lose"
+        bottomText="Points: {myScore}"
+        class="bg-white/90 shadow-lg"
+      />
       <div class="flex w-full gap-6">
         <Button onclick={handleReplay} disabled={!canReplay}>Play again</Button>
         <Button onclick={handleReturn}>Return home</Button>
@@ -229,7 +239,14 @@
     >
       <div class="flex h-full w-full flex-col items-center xl:flex-row">
         <div
-          class="bg-be-mine-gray grid aspect-square h-full max-h-full w-auto max-w-full grid-cols-6 place-items-stretch gap-1 p-3 xl:h-auto xl:w-full"
+          class={twMerge(
+            "bg-be-mine-gray shadow-glow shadow-light-gray grid aspect-square",
+            "h-full max-h-full w-auto max-w-full",
+            "grid-cols-6 place-items-stretch gap-1 p-3",
+            "xl:h-auto xl:w-full",
+            isTurn && gameState.state?.currentTurn === 0 && "shadow-be-mine-green",
+            isTurn && gameState.state?.currentTurn === 1 && "shadow-be-mine-red",
+          )}
         >
           {#each Array.from(new Array(6), (_, i) => i) as y}
             {#each Array.from(new Array(6), (_, i) => i) as x}

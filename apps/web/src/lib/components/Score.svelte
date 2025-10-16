@@ -4,7 +4,7 @@
   import { twMerge } from "tailwind-merge";
 
   interface Props {
-    name: string;
+    name: string | undefined;
     score: number | undefined;
     variant: "left" | "right";
   }
