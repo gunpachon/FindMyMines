@@ -52,6 +52,7 @@
     });
 
     socket.on("reset", () => {
+      gameState.state = undefined;
       goto("/", { replaceState: true });
     });
   }

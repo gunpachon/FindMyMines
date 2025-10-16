@@ -47,10 +47,16 @@
       showWinBanner = false;
       showLoseBanner = false;
     });
+
+    socket?.on("playerLeft", () => (canReplay = false));
   }
 
+  let canReplay = $state(true);
+
   let isTurn = $derived(
-    gameState.myIndex !== undefined && gameState.myIndex === gameState.state?.currentTurn,
+    gameState.state?.status === "in-progress" &&
+      gameState.myIndex !== undefined &&
+      gameState.myIndex === gameState.state?.currentTurn,
   );
 
   $effect(() => {
@@ -118,6 +124,10 @@
   function handleReplay() {
     socket?.emit("replay");
   }
+
+  function handleReturn() {
+    socket?.emit("leave");
+  }
 </script>
 
 <svelte:head>
@@ -180,8 +190,8 @@
     <div class="mx-auto w-full max-w-6xl space-y-12">
       <Banner iconSource={TrophySVG} topText="You win!" bottomText="Points: {myScore}" />
       <div class="flex w-full gap-6">
-        <Button onclick={handleReplay}>Play again</Button>
-        <Button onclick={() => goto("/")}>Return home</Button>
+        <Button onclick={handleReplay} disabled={!canReplay}>Play again</Button>
+        <Button onclick={handleReturn}>Return home</Button>
       </div>
     </div>
   </div>
@@ -195,8 +205,8 @@
     <div class="mx-auto w-full max-w-6xl space-y-12">
       <Banner iconSource={CryingFaceSVG} topText="You lose" bottomText="Points: {myScore}" />
       <div class="flex w-full gap-6">
-        <Button onclick={handleReplay}>Play again</Button>
-        <Button onclick={() => goto("/")}>Return home</Button>
+        <Button onclick={handleReplay} disabled={!canReplay}>Play again</Button>
+        <Button onclick={handleReturn}>Return home</Button>
       </div>
     </div>
   </div>
@@ -207,11 +217,11 @@
     class="grid h-full w-full grid-cols-[max-content_1fr_max-content] grid-rows-[auto_1fr] gap-x-12 gap-y-6"
   >
     <div class="col-span-1 col-start-1 row-start-1 shrink-0 space-y-6">
-      <Score name={player1?.name ?? "Lorem ipsu"} score={player1?.score ?? 0} variant="left" />
+      <Score name={player1?.name} score={player1?.score} variant="left" />
       <TimerBar start={player1TurnTimes.start} end={player1TurnTimes.end} variant="left" />
     </div>
     <div class="col-span-1 col-start-3 row-start-1 shrink-0 space-y-6">
-      <Score name={player2?.name ?? "Dolor sit a"} score={player2?.score ?? 0} variant="right" />
+      <Score name={player2?.name} score={player2?.score} variant="right" />
       <TimerBar start={player2TurnTimes.start} end={player2TurnTimes.end} variant="right" />
     </div>
     <div

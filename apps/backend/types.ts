@@ -3,6 +3,7 @@ export type Player = {
   score: number;
   socketID: string;
   emit: (event: string) => Object;
+  active: boolean;
 };
 export type Tile = {
   index: [number, number];

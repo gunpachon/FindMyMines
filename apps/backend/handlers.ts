@@ -148,6 +148,8 @@ export function registerHandlers(socket: Socket, io: Server) {
   });
 
   socket.on("join", (name: string, code: string) => {
+    if (room !== undefined) return;
+
     room = code;
 
     const socketsInRoom = io.sockets.adapter.rooms.get(room)?.size;
@@ -166,6 +168,7 @@ export function registerHandlers(socket: Socket, io: Server) {
         score: 0,
         socketID: socket.id,
         emit: (event: string) => socket.emit(event),
+        active: true,
       });
       if (game.players.length == 2) {
         startGame(game, false);
@@ -234,6 +237,29 @@ export function registerHandlers(socket: Socket, io: Server) {
     io.to(room).emit("replay");
     io.to(room).emit("gameState", game);
   });
+
+  socket.on("leave", () => {
+    if (room === undefined) return;
+    const game = gameMap.get(room);
+    if (game === undefined) return;
+
+    game.players.forEach((p) => {
+      if (p.socketID === socket.id) p.active = false;
+    });
+
+    socket.leave(room);
+    io.to(room).emit("gameState", game);
+    io.to(room).emit("playerLeft");
+    socket.emit("reset");
+
+    const activePlayers = game.players.reduce(
+      (acc, cur) => acc + (cur.active ? 1 : 0),
+      0
+    );
+    if (activePlayers === 0) gameMap.delete(room);
+
+    room = undefined;
+  });
 }
 
 export function registerAdminHandlers(socket: Socket, io: Server) {
@@ -262,23 +288,24 @@ export function registerAdminHandlers(socket: Socket, io: Server) {
 //   }
 //   return gameMap.get(code);
 // }
-export function onReplay(code: string) {
-  //not done yet
-  const game = gameMap.get(code);
-  if (game !== undefined) {
-    if (game.status == "ended") {
-      game.bombFound = 0;
-      for (let i = 0; i < game.players.length; i++) {
-        const player = game.players[i];
-        if (player !== undefined) player.score = 0;
-      }
-      game.status = "in-progress";
-      const startNewGame = updateTurn(game, false); //start with winner of last game
-      if (startNewGame !== undefined) gameMap.set(code, startNewGame);
-    }
-  }
-  return gameMap.get(code);
-}
+// export function onReplay(code: string) {
+//   //not done yet
+//   const game = gameMap.get(code);
+//   if (game !== undefined) {
+//     if (game.status == "ended") {
+//       game.bombFound = 0;
+//       for (let i = 0; i < game.players.length; i++) {
+//         const player = game.players[i];
+//         if (player !== undefined) player.score = 0;
+//       }
+//       game.status = "in-progress";
+//       const startNewGame = updateTurn(game, false); //start with winner of last game
+//       if (startNewGame !== undefined) gameMap.set(code, startNewGame);
+//     }
+//   }
+//   return gameMap.get(code);
+// }
+
 /*type mockSocket = {
     id:string,
     emit: (message:string)=>object,
