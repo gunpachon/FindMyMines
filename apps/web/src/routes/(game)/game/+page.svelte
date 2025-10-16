@@ -137,23 +137,6 @@
   <link rel="preload" href={TileSVG} as="image" type="image/svg+xml" />
 </svelte:head>
 
-<div class="absolute bottom-8 right-8">
-  <button
-    class="hover:brightness-120 rounded bg-green-500 px-4 py-3 text-white hover:cursor-pointer"
-    class:bg-green-700={showWinBanner}
-    onclick={() => showBanner("win")}
-  >
-    Win
-  </button>
-  <button
-    class="hover:brightness-120 rounded bg-green-500 px-4 py-3 text-white hover:cursor-pointer"
-    class:bg-green-700={showLoseBanner}
-    onclick={() => showBanner("lose")}
-  >
-    Lose
-  </button>
-</div>
-
 {#if showTimeoutBanner}
   <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
   <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -241,7 +224,7 @@
         <div
           class={twMerge(
             "bg-be-mine-gray shadow-glow shadow-light-gray grid aspect-square",
-            "h-full max-h-full w-auto max-w-full",
+            "h-full max-h-full w-auto max-w-full rounded-2xl",
             "grid-cols-6 place-items-stretch gap-1 p-3",
             "xl:h-auto xl:w-full",
             isTurn && gameState.state?.currentTurn === 0 && "shadow-be-mine-green",
