@@ -7,7 +7,7 @@ const io = new Server();
 const engine = new Engine({
   path: "/socket.io/",
   cors: {
-    origin: ["http://localhost:5173", "https://bemine.ideal.sh"],
+    origin: process.env.CORS_ORIGINS?.split(" ") ?? ["http://localhost:5173"],
   },
 });
 
@@ -42,8 +42,8 @@ io.of("/admin").on("connection", (socket) => {
 });
 
 export default {
-  hostname: "0.0.0.0",
-  port: 3000,
+  hostname: process.env.HOST ?? "0.0.0.0",
+  port: process.env.PORT ?? 3000,
   // idleTimeout: 30, // must be greater than the "pingInterval" option of the engine, which defaults to 25 seconds
   ...engine.handler(),
 };

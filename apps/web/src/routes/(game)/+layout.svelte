@@ -6,6 +6,7 @@
   import type { Game } from "$lib/types";
   import { page } from "$app/state";
   import { goto } from "$app/navigation";
+  import { env } from "$env/dynamic/public";
 
   let { children } = $props();
 
@@ -22,7 +23,7 @@
       gotoIfNotAt("/");
     }
 
-    const socket = io("https://bemine-backend.ideal.sh/");
+    const socket = io(env.PUBLIC_BACKEND_HOST ?? ":3000");
 
     socketContext.set(socket);
 
