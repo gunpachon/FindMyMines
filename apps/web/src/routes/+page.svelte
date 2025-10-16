@@ -58,7 +58,7 @@
     <div class="mt-6 w-full rounded-3xl border border-black/10 bg-white p-8 shadow-md">
       <div class="grid gap-6">
         <div class="flex flex-col items-center gap-4">
-          <div class="font-pixel text-be-mine-gray justify-start self-stretch text-3xl font-normal">
+          <div class="text-be-mine-gray justify-start self-stretch text-3xl font-normal">
             Choose Your Avatar
             <div class="mt-[40px] flex flex-wrap items-center justify-center gap-[80px]">
               {#each avatars as avatar, i}
