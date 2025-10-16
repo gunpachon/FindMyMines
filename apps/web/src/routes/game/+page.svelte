@@ -23,6 +23,7 @@
   import { socketContext } from "$lib/context";
   import type { Game } from "$lib/types";
   import { browser } from "$app/environment";
+  import { goto } from "$app/navigation";
 
   const fallbackBoard = Array.from({ length: 6 }, (_, i) =>
     Array.from({ length: 6 }, (_, j) => ({
@@ -37,6 +38,9 @@
 
   if (browser) {
     socket?.on("timeOut", () => showBanner("timeout"));
+
+    socket?.on("win", () => showBanner("win"));
+    socket?.on("lose", () => showBanner("lose"));
   }
 
   let isTurn = $derived(
@@ -47,6 +51,11 @@
     if (isTurn) {
       showBanner("turn");
     }
+  });
+
+  let myScore = $derived.by(() => {
+    if (gameState.myIndex === undefined) return undefined;
+    return gameState.state?.players.at(gameState.myIndex)?.score;
   });
 
   let player1 = $derived(gameState.state?.players.at(0));
@@ -142,15 +151,10 @@
   </div>
 {/if}
 {#if showTurnBanner}
-  <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-  <!-- svelte-ignore a11y_click_events_have_key_events -->
   <div
-    class="absolute inset-0 z-20 m-auto h-fit w-full p-4"
+    class="pointer-events-none absolute inset-0 z-20 m-auto h-fit w-full p-4"
     in:fly={{ y: 200, duration: 300, easing: backOut }}
     out:fly={{ y: -200, duration: 300, easing: backIn }}
-    onclick={() => (showTurnBanner = false)}
-    role="alert"
-    aria-live="polite"
   >
     <div class="mx-auto w-full max-w-6xl">
       <Banner iconSource={TurnOnSVG} bottomText="Your turn!" />
@@ -164,10 +168,10 @@
     out:fly={{ y: -200, duration: 500, easing: backIn }}
   >
     <div class="mx-auto w-full max-w-6xl space-y-12">
-      <Banner iconSource={TrophySVG} topText="You win!" bottomText="Points: 12345" />
+      <Banner iconSource={TrophySVG} topText="You win!" bottomText="Points: {myScore}" />
       <div class="flex w-full gap-6">
         <Button>Play again</Button>
-        <Button>Return home</Button>
+        <Button onclick={() => goto("/")}>Return home</Button>
       </div>
     </div>
   </div>
@@ -179,10 +183,10 @@
     out:fly={{ y: -200, duration: 500, easing: backIn }}
   >
     <div class="mx-auto w-full max-w-6xl space-y-12">
-      <Banner iconSource={CryingFaceSVG} topText="You lose" bottomText="Points: 12345" />
+      <Banner iconSource={CryingFaceSVG} topText="You lose" bottomText="Points: {myScore}" />
       <div class="flex w-full gap-6">
         <Button>Play again</Button>
-        <Button>Return home</Button>
+        <Button onclick={() => goto("/")}>Return home</Button>
       </div>
     </div>
   </div>

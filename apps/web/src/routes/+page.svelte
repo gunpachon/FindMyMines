@@ -7,23 +7,18 @@
   import GhostAvatar from "$lib/assets/ghost-avatar.svg";
   import RobotAvatar from "$lib/assets/robot-avatar.svg";
   import Button from "$lib/components/Button.svelte";
-  import { socketContext } from "$lib/context";
   import { goto } from "$app/navigation";
 
   import { setupState } from "$lib/state.svelte";
-  import { browser } from "$app/environment";
 
   const avatars = [BombAvatar, BoomAvatar, GhostAvatar, RobotAvatar, CatAvatar] as const;
-  let selectedAvatarIdx = $state<number | null>(null);
-
-  const socket = socketContext.getOr(null);
 
   function selectAvatar(index: number) {
-    selectedAvatarIdx = index;
+    setupState.avatar = index;
   }
 
   function canProceed() {
-    return selectedAvatarIdx !== null && setupState.name.trim().length > 0;
+    return setupState.avatar !== undefined && setupState.name.trim().length > 0;
   }
 
   function handleCreate() {
@@ -71,7 +66,7 @@
                   type="button"
                   class={twMerge(
                     "grid h-16 w-16 place-items-center rounded-xl border-2 bg-white p-2 shadow-sm transition",
-                    selectedAvatarIdx === i
+                    setupState.avatar === i
                       ? "bg-be-mine-light-blue border-blue-500 ring-4 ring-blue-100"
                       : "border-black/10 hover:brightness-105",
                   )}

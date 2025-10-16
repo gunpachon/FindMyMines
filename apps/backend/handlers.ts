@@ -182,9 +182,14 @@ export function registerHandlers(socket: Socket, io: Server) {
           const opponent = game.players[game.currentTurn];
           game.status = "ended";
           if (opponent !== undefined) {
-            opponent.emit("Lose");
+            opponent.emit("lose");
           }
-          socket.emit("Win");
+          socket.emit("win");
+
+          game.turnStartTime = null;
+          game.turnEndTime = null;
+
+          io.to(room).emit("gameState", game);
           clearTimeout(timeouts.get(room));
         }
       }
