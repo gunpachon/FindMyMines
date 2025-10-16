@@ -1,6 +1,6 @@
 import { Server as Engine } from "@socket.io/bun-engine";
 import { Server } from "socket.io";
-import { registerHandlers } from "./handlers";
+import { registerAdminHandlers, registerHandlers } from "./handlers";
 
 const io = new Server();
 
@@ -37,6 +37,8 @@ io.on("connection", (socket) => {
 
 io.of("/admin").on("connection", (socket) => {
   socket.emit("clients", io.of("/").sockets.size);
+
+  registerAdminHandlers(socket, io);
 });
 
 export default {

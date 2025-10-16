@@ -9,10 +9,10 @@
 
   let { children } = $props();
 
-  function gotoIfNotAt(route: string, replace = false) {
+  function gotoIfNotAt(route: string) {
     if (page.route.id !== route) {
       goto(route, {
-        replaceState: replace,
+        replaceState: page.route.id !== "/(game)",
       });
     }
   }
@@ -47,8 +47,12 @@
       if (state.status === "waiting") {
         gotoIfNotAt("/waiting");
       } else {
-        gotoIfNotAt("/game", true);
+        gotoIfNotAt("/game");
       }
+    });
+
+    socket.on("reset", () => {
+      goto("/", { replaceState: true });
     });
   }
 </script>

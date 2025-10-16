@@ -207,23 +207,32 @@ export function registerHandlers(socket: Socket, io: Server) {
   });
 }
 
-export function onReset(code: string) {
-  //not done yet
-  const game = gameMap.get(code);
-  if (game !== undefined) {
-    game.currentTurn = 0;
-    game.turnStartTime = null;
-    game.turnEndTime = null;
-    game.bombFound = 0;
-    for (let i = 0; i < game.players.length; i++) {
-      const player = game.players[i];
-      if (player !== undefined) player.score = 0;
-    }
-    const startNewGame = onStart(game, false);
-    if (startNewGame !== undefined) gameMap.set(code, startNewGame);
-  }
-  return gameMap.get(code);
+export function registerAdminHandlers(socket: Socket, io: Server) {
+  socket.on("reset", () => {
+    gameMap.clear();
+    timeouts.values().forEach(clearTimeout);
+
+    io.of("/").emit("reset");
+  });
 }
+
+// export function onReset(code: string) {
+//   //not done yet
+//   const game = gameMap.get(code);
+//   if (game !== undefined) {
+//     game.currentTurn = 0;
+//     game.turnStartTime = null;
+//     game.turnEndTime = null;
+//     game.bombFound = 0;
+//     for (let i = 0; i < game.players.length; i++) {
+//       const player = game.players[i];
+//       if (player !== undefined) player.score = 0;
+//     }
+//     const startNewGame = onStart(game, false);
+//     if (startNewGame !== undefined) gameMap.set(code, startNewGame);
+//   }
+//   return gameMap.get(code);
+// }
 export function onReplay(code: string) {
   //not done yet
   const game = gameMap.get(code);
