@@ -177,20 +177,28 @@ export function registerHandlers(socket: Socket, io: Server) {
         tile.revealer = game.currentTurn;
         console.log(tile);
 
-        updateTurn(game, false);
         if (game.bombFound === 11) {
-          const opponent = game.players[game.currentTurn];
+          clearTimeout(timeouts.get(room));
+
+          const maxScore = game.players.reduce(
+            (acc, cur) => (cur.score > acc ? cur.score : acc),
+            -Infinity
+          );
+
+          const winner = game.players.find((p) => p.score >= maxScore);
+          const loser = game.players.find((p) => p.score < maxScore);
+
           game.status = "ended";
-          if (opponent !== undefined) {
-            opponent.emit("lose");
-          }
-          socket.emit("win");
+
+          winner?.emit("win");
+          loser?.emit("lose");
 
           game.turnStartTime = null;
           game.turnEndTime = null;
 
           io.to(room).emit("gameState", game);
-          clearTimeout(timeouts.get(room));
+        } else {
+          updateTurn(game, false);
         }
       }
 
