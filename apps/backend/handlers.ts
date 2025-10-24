@@ -1,5 +1,5 @@
 import type { Server, Socket } from "socket.io";
-import type { Board, Game, Tile } from "./types.ts";
+import type { Board, Game, Tile ,Reaction} from "./types.ts";
 
 function getRandomInt(max: number) {
   return Math.floor(Math.random() * max);
@@ -147,7 +147,7 @@ export function registerHandlers(socket: Socket, io: Server) {
     socket.emit("created", code);
   });
 
-  socket.on("join", (name: string, code: string) => {
+  socket.on("join", (name: string, code: string, avatar:string) => {
     if (room !== undefined) return;
 
     room = code;
@@ -169,6 +169,7 @@ export function registerHandlers(socket: Socket, io: Server) {
         socketID: socket.id,
         emit: (event: string) => socket.emit(event),
         active: true,
+        avatar: avatar
       });
       if (game.players.length == 2) {
         startGame(game, false);
@@ -259,6 +260,19 @@ export function registerHandlers(socket: Socket, io: Server) {
     if (activePlayers === 0) gameMap.delete(room);
 
     room = undefined;
+  });
+
+  socket.on("sendReaction", (react: string) => {
+    if (room === undefined) return;
+    const game = gameMap.get(room);
+    if (game === undefined) return;
+
+    const reaction: Reaction = {
+      reaction : react,
+      timestamp: Date.now(),
+    };
+
+    io.to(room).emit("reactionReceived", reaction);
   });
 }
 
