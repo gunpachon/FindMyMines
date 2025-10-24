@@ -20,7 +20,7 @@ function getTile(board: Board, index: [number, number]) {
 function randomizeBomb(board: Board, bombNum: number) {
   let count = 0;
   while (count < bombNum) {
-    const index: [number, number] = [getRandomInt(6), getRandomInt(6)];
+    const index: [number, number] = [getRandomInt(board.length), getRandomInt(board.length)];
     const tile = getTile(board, index);
     if (tile !== undefined) {
       if (tile.bomb == false) {
@@ -45,8 +45,18 @@ function createBoard(rowSize: number, colSize: number) {
     }
     board.push(row);
   }
-  randomizeBomb(board, 11);
   return board;
+}
+
+function getBoardConfig(mode: string) {
+  switch (mode) {
+    case "mini":
+      return { rowSize: 4, colSize: 4, bombNum: 5, hasTimer: true };
+    case "zen":
+      return { rowSize: 6, colSize: 6, bombNum: 11, hasTimer: false };
+    default:
+      return { rowSize: 6, colSize: 6, bombNum: 11, hasTimer: true };
+  }
 }
 
 const gameMap = new Map<string, Game>();
@@ -107,7 +117,9 @@ export function registerHandlers(socket: Socket, io: Server) {
       //game.board = createBoard(6,6);
 
       if (replay) {
-        game.board = createBoard(6, 6);
+        const { rowSize, colSize, bombNum } = getBoardConfig(game.mode);
+        game.board = createBoard(rowSize, colSize);
+        randomizeBomb(game.board, bombNum);
         game.bombFound = 0;
 
         const maxScore = game.players.reduce(
@@ -132,13 +144,16 @@ export function registerHandlers(socket: Socket, io: Server) {
 
   socket.on("create", (mode: string) => {
     const code = generateid();
+    const { rowSize, colSize, bombNum } = getBoardConfig(mode);
+    const board = createBoard(rowSize, colSize);
+    randomizeBomb(board, bombNum);
     gameMap.set(code, {
       code: code,
       status: "waiting", //{"waiting", "in-progress", "ended"}
       mode: mode, //{"classic","zen","blind"}
       players: [],
       currentTurn: 0,
-      board: createBoard(6, 6),
+      board: board,
       turnStartTime: null,
       turnEndTime: null,
       bombFound: 0,
