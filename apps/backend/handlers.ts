@@ -48,15 +48,11 @@ function createBoard(rowSize: number, colSize: number) {
   return board;
 }
 
-function getBoardConfig(mode: string) {
-  switch (mode) {
-    case "mini":
-      return { rowSize: 4, colSize: 4, bombNum: 5, hasTimer: true };
-    case "zen":
-      return { rowSize: 6, colSize: 6, bombNum: 11, hasTimer: false };
-    default:
-      return { rowSize: 6, colSize: 6, bombNum: 11, hasTimer: true };
+function getBoardSize(mode: string) {
+  if (mode === "mini") {
+    return {rowSize: 4, colSize: 4, bombNum: 5};
   }
+  return {rowSize: 6, colSize: 6, bombNum: 11};
 }
 
 const gameMap = new Map<string, Game>();
@@ -93,19 +89,21 @@ export function registerHandlers(socket: Socket, io: Server) {
       }
     }
     game.turnStartTime = Date.now();
-    game.turnEndTime = game.turnStartTime + 10000;
+    game.turnEndTime = game.mode === "zen" ? null : game.turnStartTime + 10000;
     // whose turn?
     const turn = game.currentTurn;
-    timeouts.set(
-      room,
-      setTimeout(() => {
-        // Time is up
-        const currentTurnPlayer = game.players[turn];
-        if (currentTurnPlayer === undefined) throw new Error();
-        currentTurnPlayer.emit("timeOut");
-        updateTurn(game, false);
-      }, game.turnEndTime - Date.now())
-    );
+    if (game.mode !== "zen") {
+      timeouts.set(
+        room,
+        setTimeout(() => {
+          // Time is up
+          const currentTurnPlayer = game.players[turn];
+          if (currentTurnPlayer === undefined) throw new Error();
+          currentTurnPlayer.emit("timeOut");
+          updateTurn(game, false);
+        }, game.turnEndTime! - Date.now())
+      );
+    }
 
     io.to(room).emit("gameState", game);
   }
@@ -117,7 +115,7 @@ export function registerHandlers(socket: Socket, io: Server) {
       //game.board = createBoard(6,6);
 
       if (replay) {
-        const { rowSize, colSize, bombNum } = getBoardConfig(game.mode);
+        const { rowSize, colSize, bombNum } = getBoardSize(game.mode);
         game.board = createBoard(rowSize, colSize);
         randomizeBomb(game.board, bombNum);
         game.bombFound = 0;
@@ -144,7 +142,7 @@ export function registerHandlers(socket: Socket, io: Server) {
 
   socket.on("create", (mode: string) => {
     const code = generateid();
-    const { rowSize, colSize, bombNum } = getBoardConfig(mode);
+    const { rowSize, colSize, bombNum } = getBoardSize(mode);
     const board = createBoard(rowSize, colSize);
     randomizeBomb(board, bombNum);
     gameMap.set(code, {
@@ -201,6 +199,7 @@ export function registerHandlers(socket: Socket, io: Server) {
 
     const game = gameMap.get(room);
     if (game != undefined) {
+      const totalBombs = getBoardSize(game.mode).bombNum;
       const turnClicker = game.players[game.currentTurn];
       const tile = getTile(game.board, tileIndex);
       if (turnClicker !== undefined && tile !== undefined) {
@@ -215,7 +214,7 @@ export function registerHandlers(socket: Socket, io: Server) {
         tile.revealer = game.currentTurn;
         console.log(tile);
 
-        if (game.bombFound === 11) {
+        if (game.bombFound === totalBombs) {
           clearTimeout(timeouts.get(room));
 
           const maxScore = game.players.reduce(
