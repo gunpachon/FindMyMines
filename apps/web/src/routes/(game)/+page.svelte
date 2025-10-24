@@ -35,6 +35,12 @@
 </script>
 
 <div class="relative z-10 mx-auto h-dvh max-w-4xl p-4">
+  <button
+    onclick={() => goto("/how-to-play")}
+    class="fixed right-16 top-8 grid h-14 w-14 outline-zinc-300 outline-2 place-items-center rounded-full bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] hover:brightness-90"
+  >
+    <span class="text-5xl font-normal text-be-mine-dark-gray">?</span>
+  </button>
   <div class="flex h-full flex-col items-center justify-center gap-2">
     <div class="flex flex-col items-start gap-0">
       <div class="animate-floating flex items-center gap-3">
