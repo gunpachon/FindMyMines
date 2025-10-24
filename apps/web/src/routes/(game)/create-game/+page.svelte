@@ -2,6 +2,8 @@
   import BlindSVG from "$lib/assets/blind.svg";
   import ZenSVG from "$lib/assets/zen.svg";
   import BombSVG from "$lib/assets/bomb.svg";
+  import MiniSVG from "$lib/assets/mini.svg";
+
   import Button from "$lib/components/Button.svelte";
   import { twMerge } from "tailwind-merge";
   import { socketContext } from "$lib/context";
@@ -16,6 +18,7 @@
     { id: "general", name: "General", icon: BombSVG },
     { id: "zen", name: "Zen", icon: ZenSVG },
     { id: "blind", name: "Blind", icon: BlindSVG },
+    { id: "mini", name: "Mini", icon: MiniSVG },
   ];
 
   let selectedMode = $state<string | undefined>();
