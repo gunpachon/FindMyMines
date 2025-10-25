@@ -1,5 +1,5 @@
 import type { Server, Socket } from "socket.io";
-import type { Board, Game, Tile } from "./types.ts";
+import type { Board, Game, Tile ,Reaction} from "./types.ts";
 
 function getRandomInt(max: number) {
   return Math.floor(Math.random() * max);
@@ -20,7 +20,7 @@ function getTile(board: Board, index: [number, number]) {
 function randomizeBomb(board: Board, bombNum: number) {
   let count = 0;
   while (count < bombNum) {
-    const index: [number, number] = [getRandomInt(6), getRandomInt(6)];
+    const index: [number, number] = [getRandomInt(board.length), getRandomInt(board.length)];
     const tile = getTile(board, index);
     if (tile !== undefined) {
       if (tile.bomb == false) {
@@ -45,8 +45,14 @@ function createBoard(rowSize: number, colSize: number) {
     }
     board.push(row);
   }
-  randomizeBomb(board, 11);
   return board;
+}
+
+function getBoardSize(mode: string) {
+  if (mode === "mini") {
+    return {rowSize: 4, colSize: 4, bombNum: 5};
+  }
+  return {rowSize: 6, colSize: 6, bombNum: 11};
 }
 
 const gameMap = new Map<string, Game>();
@@ -83,19 +89,21 @@ export function registerHandlers(socket: Socket, io: Server) {
       }
     }
     game.turnStartTime = Date.now();
-    game.turnEndTime = game.turnStartTime + 10000;
+    game.turnEndTime = game.mode === "zen" ? null : game.turnStartTime + 10000;
     // whose turn?
     const turn = game.currentTurn;
-    timeouts.set(
-      room,
-      setTimeout(() => {
-        // Time is up
-        const currentTurnPlayer = game.players[turn];
-        if (currentTurnPlayer === undefined) throw new Error();
-        currentTurnPlayer.emit("timeOut");
-        updateTurn(game, false);
-      }, game.turnEndTime - Date.now())
-    );
+    if (game.mode !== "zen") {
+      timeouts.set(
+        room,
+        setTimeout(() => {
+          // Time is up
+          const currentTurnPlayer = game.players[turn];
+          if (currentTurnPlayer === undefined) throw new Error();
+          currentTurnPlayer.emit("timeOut");
+          updateTurn(game, false);
+        }, game.turnEndTime! - Date.now())
+      );
+    }
 
     io.to(room).emit("gameState", game);
   }
@@ -107,7 +115,9 @@ export function registerHandlers(socket: Socket, io: Server) {
       //game.board = createBoard(6,6);
 
       if (replay) {
-        game.board = createBoard(6, 6);
+        const { rowSize, colSize, bombNum } = getBoardSize(game.mode);
+        game.board = createBoard(rowSize, colSize);
+        randomizeBomb(game.board, bombNum);
         game.bombFound = 0;
 
         const maxScore = game.players.reduce(
@@ -132,13 +142,16 @@ export function registerHandlers(socket: Socket, io: Server) {
 
   socket.on("create", (mode: string) => {
     const code = generateid();
+    const { rowSize, colSize, bombNum } = getBoardSize(mode);
+    const board = createBoard(rowSize, colSize);
+    randomizeBomb(board, bombNum);
     gameMap.set(code, {
       code: code,
       status: "waiting", //{"waiting", "in-progress", "ended"}
       mode: mode, //{"classic","zen","blind"}
       players: [],
       currentTurn: 0,
-      board: createBoard(6, 6),
+      board: board,
       turnStartTime: null,
       turnEndTime: null,
       bombFound: 0,
@@ -147,7 +160,7 @@ export function registerHandlers(socket: Socket, io: Server) {
     socket.emit("created", code);
   });
 
-  socket.on("join", (name: string, code: string) => {
+  socket.on("join", (name: string, code: string, avatar:string) => {
     if (room !== undefined) return;
 
     room = code;
@@ -169,6 +182,7 @@ export function registerHandlers(socket: Socket, io: Server) {
         socketID: socket.id,
         emit: (event: string) => socket.emit(event),
         active: true,
+        avatar: avatar
       });
       if (game.players.length == 2) {
         startGame(game, false);
@@ -185,6 +199,7 @@ export function registerHandlers(socket: Socket, io: Server) {
 
     const game = gameMap.get(room);
     if (game != undefined) {
+      const totalBombs = getBoardSize(game.mode).bombNum;
       const turnClicker = game.players[game.currentTurn];
       const tile = getTile(game.board, tileIndex);
       if (turnClicker !== undefined && tile !== undefined) {
@@ -199,7 +214,7 @@ export function registerHandlers(socket: Socket, io: Server) {
         tile.revealer = game.currentTurn;
         console.log(tile);
 
-        if (game.bombFound === 11) {
+        if (game.bombFound === totalBombs) {
           clearTimeout(timeouts.get(room));
 
           const maxScore = game.players.reduce(
@@ -259,6 +274,19 @@ export function registerHandlers(socket: Socket, io: Server) {
     if (activePlayers === 0) gameMap.delete(room);
 
     room = undefined;
+  });
+
+  socket.on("sendReaction", (react: string) => {
+    if (room === undefined) return;
+    const game = gameMap.get(room);
+    if (game === undefined) return;
+
+    const reaction: Reaction = {
+      reaction : react,
+      timestamp: Date.now(),
+    };
+
+    io.to(room).emit("reactionReceived", reaction);
   });
 }
 

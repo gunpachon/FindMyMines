@@ -4,6 +4,7 @@ export type Player = {
   socketID: string;
   emit: (event: string) => Object;
   active: boolean;
+  avatar: string;
 };
 export type Tile = {
   index: [number, number];
@@ -23,3 +24,7 @@ export type Game = {
   turnStartTime: number | null;
   turnEndTime: number | null;
 };
+export type Reaction = {
+  reaction:string;
+  timestamp: number; //for ordering the reactions
+}
