@@ -281,12 +281,17 @@ export function registerHandlers(socket: Socket, io: Server) {
     const game = gameMap.get(room);
     if (game === undefined) return;
 
-    const reaction: Reaction = {
-      reaction : react,
+    // find which player send the reaction
+    const playerIndex = game.players.findIndex(p => p.socketID === socket.id);
+    if (playerIndex === -1) return;
+
+    const reactionData = {
+      reaction: react,
       timestamp: Date.now(),
+      playerIndex: playerIndex
     };
 
-    io.to(room).emit("reactionReceived", reaction);
+    io.to(room).emit("reactionReceived", reactionData);
   });
 }
 

@@ -19,12 +19,11 @@
   import TimerBar from "$lib/components/TimerBar.svelte";
   import Banner from "$lib/components/Banner.svelte";
   import Button from "$lib/components/Button.svelte";
+  import Reaction from "$lib/components/Reaction.svelte";
   import { gameState } from "$lib/state.svelte";
   import { socketContext } from "$lib/context";
   import type { Game } from "$lib/types";
   import { browser } from "$app/environment";
-  import { goto } from "$app/navigation";
-  import { onMount, tick } from "svelte";
 
   const fallbackBoard = Array.from({ length: 6 }, (_, i) =>
     Array.from({ length: 6 }, (_, j) => ({
@@ -36,6 +35,10 @@
   );
 
   const socket = socketContext.getOr(null);
+
+  let player1Reaction = $state<"celebrate" | "fire" | "heart" | null>(null);
+  let player2Reaction = $state<"celebrate" | "fire" | "heart" | null>(null);
+  let reactionCooldown = $state(false);
 
   if (browser) {
     socket?.on("timeOut", () => showBanner("timeout"));
@@ -49,6 +52,22 @@
     });
 
     socket?.on("playerLeft", () => (canReplay = false));
+
+    socket?.on("reactionReceived", (data: { reaction: string; timestamp: number; playerIndex: number }) => {
+      const reactionType = data.reaction as "celebrate" | "fire" | "heart";
+      
+      if (data.playerIndex === 0) {
+        player1Reaction = reactionType;
+        setTimeout(() => {
+          player1Reaction = null;
+        }, 3000);
+      } else if (data.playerIndex === 1) {
+        player2Reaction = reactionType;
+        setTimeout(() => {
+          player2Reaction = null;
+        }, 3000);
+      }
+    });
   }
 
   let canReplay = $state(true);
@@ -127,6 +146,17 @@
 
   function handleReturn() {
     socket?.emit("leave");
+  }
+
+  function handleReaction(type: "celebrate" | "fire" | "heart") {
+    if (reactionCooldown) return;
+    
+    reactionCooldown = true;
+    setTimeout(() => {
+      reactionCooldown = false;
+    }, 3000);
+    
+    socket?.emit("sendReaction", type);
   }
 </script>
 
@@ -210,11 +240,11 @@
     class="grid h-full w-full grid-cols-[max-content_1fr_max-content] grid-rows-[auto_1fr] gap-x-12 gap-y-6"
   >
     <div class="col-span-1 col-start-1 row-start-1 shrink-0 space-y-6">
-      <Score name={player1?.name} score={player1?.score} variant="left" />
+      <Score name={player1?.name} score={player1?.score} variant="left" reaction={player1Reaction} />
       <TimerBar start={player1TurnTimes.start} end={player1TurnTimes.end} variant="left" />
     </div>
     <div class="col-span-1 col-start-3 row-start-1 shrink-0 space-y-6">
-      <Score name={player2?.name} score={player2?.score} variant="right" />
+      <Score name={player2?.name} score={player2?.score} variant="right" reaction={player2Reaction} />
       <TimerBar start={player2TurnTimes.start} end={player2TurnTimes.end} variant="right" />
     </div>
     <div
@@ -281,6 +311,15 @@
           {/each}
         </div>
       </div>
+    </div>
+  </div>
+
+  
+  <div class="fixed bottom-14 left-1/2 -translate-x-1/2">
+    <div class="flex gap-4 rounded-full bg-gray-200 p-4">
+      <Reaction type="fire" onclick={() => handleReaction("fire")} disabled={reactionCooldown} />
+      <Reaction type="celebrate" onclick={() => handleReaction("celebrate")} disabled={reactionCooldown} />
+      <Reaction type="heart" onclick={() => handleReaction("heart")} disabled={reactionCooldown} />
     </div>
   </div>
 </div>
