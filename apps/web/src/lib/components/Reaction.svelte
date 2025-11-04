@@ -26,7 +26,7 @@
     heart: reactionHeart
   };
 
-  const baseClasses ="w-20 h-16 p-2 rounded-xl inline-flex justify-center items-center transition hover:brightness-110 hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50";
+  const baseClasses ="w-20 h-16 p-2 rounded-xl inline-flex justify-center items-center transition hover:brightness-110 hover:scale-120 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50";
 
   const classes = twMerge(baseClasses, className);
 </script>
