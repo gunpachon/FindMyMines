@@ -25,14 +25,16 @@
   import type { Game } from "$lib/types";
   import { browser } from "$app/environment";
 
-  const fallbackBoard = Array.from({ length: 6 }, (_, i) =>
-    Array.from({ length: 6 }, (_, j) => ({
-      index: [i, j],
-      state: "hidden",
-      bomb: undefined,
-      revealer: null,
-    })),
-  );
+  function createFallbackBoard(size: number) {
+    return Array.from({ length: size }, (_, i) =>
+      Array.from({ length: size }, (_, j) => ({
+        index: [i, j],
+        state: "hidden",
+        bomb: undefined,
+        revealer: null,
+      })),
+    );
+  }
 
   const socket = socketContext.getOr(null);
 
@@ -93,6 +95,9 @@
   let player2 = $derived(gameState.state?.players.at(1));
 
   let isZenMode = $derived(gameState.state?.mode === "zen");
+  let isMiniMode = $derived(gameState.state?.mode === "mini");
+  let boardSize = $derived(isMiniMode ? 4 : 6);
+  let fallbackBoard = $derived(createFallbackBoard(boardSize));
 
   function getTurnTimes(playerIndex: number, state: Game | undefined) {
     if (state?.currentTurn !== playerIndex) return { start: null, end: null };
@@ -261,14 +266,15 @@
           class={twMerge(
             "bg-be-mine-gray shadow-glow shadow-light-gray grid aspect-square",
             "h-full max-h-full w-auto max-w-full rounded-2xl",
-            "grid-cols-6 place-items-stretch gap-1 p-3",
+            isMiniMode ? "grid-cols-4" : "grid-cols-6",
+            "place-items-stretch gap-1 p-3",
             "xl:h-auto xl:w-full",
             isTurn && gameState.state?.currentTurn === 0 && "shadow-be-mine-green",
             isTurn && gameState.state?.currentTurn === 1 && "shadow-be-mine-red",
           )}
         >
-          {#each Array.from(new Array(6), (_, i) => i) as y}
-            {#each Array.from(new Array(6), (_, i) => i) as x}
+          {#each Array.from(new Array(boardSize), (_, i) => i) as y}
+            {#each Array.from(new Array(boardSize), (_, i) => i) as x}
               {@const board = gameState.state?.board ?? fallbackBoard}
               {@const state = board[y][x]}
               {@const hasBomb = state.state === "revealed" && state.bomb === true}
