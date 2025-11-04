@@ -240,11 +240,11 @@
     class="grid h-full w-full grid-cols-[max-content_1fr_max-content] grid-rows-[auto_1fr] gap-x-12 gap-y-6"
   >
     <div class="col-span-1 col-start-1 row-start-1 shrink-0 space-y-6">
-      <Score name={player1?.name} score={player1?.score} variant="left" reaction={player1Reaction} />
+      <Score name={player1?.name} score={player1?.score} variant="left" reaction={player1Reaction} avatar={player1?.avatar} />
       <TimerBar start={player1TurnTimes.start} end={player1TurnTimes.end} variant="left" />
     </div>
     <div class="col-span-1 col-start-3 row-start-1 shrink-0 space-y-6">
-      <Score name={player2?.name} score={player2?.score} variant="right" reaction={player2Reaction} />
+      <Score name={player2?.name} score={player2?.score} variant="right" reaction={player2Reaction} avatar={player2?.avatar} />
       <TimerBar start={player2TurnTimes.start} end={player2TurnTimes.end} variant="right" />
     </div>
     <div

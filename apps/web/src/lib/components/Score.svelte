@@ -4,6 +4,11 @@
   import reactionCelebrate from "$lib/assets/reaction-celebrate.svg";
   import reactionFire from "$lib/assets/reaction-fire.svg";
   import reactionHeart from "$lib/assets/reaction-heart.svg";
+  import BombAvatar from "$lib/assets/bomb-avatar.svg";
+  import BoomAvatar from "$lib/assets/boom-avatar.svg";
+  import CatAvatar from "$lib/assets/cat-avatar.svg";
+  import GhostAvatar from "$lib/assets/ghost-avatar.svg";
+  import RobotAvatar from "$lib/assets/robot-avatar.svg";
   import { twMerge } from "tailwind-merge";
   import { scale } from "svelte/transition";
   import { backOut } from "svelte/easing";
@@ -13,15 +18,26 @@
     score: number | undefined;
     variant: "left" | "right";
     reaction?: "celebrate" | "fire" | "heart" | null;
+    avatar?: string;
   }
 
-  const { name, score, variant, reaction = null }: Props = $props();
+  const { name, score, variant, reaction = null, avatar }: Props = $props();
 
   const reactionIcons = {
     celebrate: reactionCelebrate,
     fire: reactionFire,
     heart: reactionHeart
   };
+
+  const avatars = [BombAvatar, BoomAvatar, GhostAvatar, RobotAvatar, CatAvatar];
+  
+  const avatarSrc = $derived(() => {
+    if (avatar === undefined) return undefined;
+    const avatarIndex = parseInt(avatar);
+    return !isNaN(avatarIndex) && avatarIndex >= 0 && avatarIndex < avatars.length 
+      ? avatars[avatarIndex] 
+      : undefined;
+  });
 </script>
 
 <div class="relative w-fit">
@@ -33,17 +49,32 @@
   />
   <div class="font-pixel absolute inset-0 px-4">
     <div
-      class="mb-3 h-9 w-32 truncate text-3xl text-gray-400"
+      class="mb-3 h-9 w-32 truncate text-4xl text-gray-400"
       class:ml-auto={variant === "right"}
       class:text-end={variant === "right"}
     >
       {name}
     </div>
     <div class="flex items-center justify-around">
-      <div class="bg-be-mine-gray/20 size-16 rounded-full"></div>
-      <span class={twMerge("text-5xl", score === undefined && "text-be-mine-gray/50")}>
-        {score !== undefined ? score.toString().padStart(4, "0") : "????"}
-      </span>
+      {#if variant === "left"}
+        <div class="size-16 rounded-full overflow-hidden flex items-center justify-center">
+          {#if avatarSrc()}
+            <img src={avatarSrc()} alt="player avatar" class="w-14 h-14 object-contain" />
+          {/if}
+        </div>
+        <span class={twMerge("text-5xl", score === undefined && "text-be-mine-gray/50")}>
+          {score !== undefined ? score.toString().padStart(4, "0") : "????"}
+        </span>
+      {:else}
+        <span class={twMerge("text-5xl", score === undefined && "text-be-mine-gray/50")}>
+          {score !== undefined ? score.toString().padStart(4, "0") : "????"}
+        </span>
+        <div class="size-16 rounded-full overflow-hidden flex items-center justify-center">
+          {#if avatarSrc()}
+            <img src={avatarSrc()} alt="player avatar" class="w-14 h-14 object-contain" />
+          {/if}
+        </div>
+      {/if}
     </div>
   </div>
   

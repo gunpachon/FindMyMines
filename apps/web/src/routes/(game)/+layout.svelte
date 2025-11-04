@@ -32,7 +32,8 @@
     });
 
     socket.on("created", (code) => {
-      socket.emit("join", setupState.name, code);
+      const avatarValue = setupState.avatar !== undefined ? String(setupState.avatar) : "0";
+      socket.emit("join", setupState.name, code, avatarValue);
     });
 
     socket.on("gameState", (state: Game) => {

@@ -13,8 +13,10 @@
 
   function handleJoin() {
     if (!canProceed()) return;
+    
+    const avatarValue = setupState.avatar !== undefined ? String(setupState.avatar) : "0";
 
-    socket?.emit("join", setupState.name, roomCode);
+    socket?.emit("join", setupState.name, roomCode, avatarValue);
   }
 </script>
 
