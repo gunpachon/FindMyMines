@@ -35,23 +35,17 @@
 </script>
 
 <div class="relative z-10 mx-auto h-dvh max-w-4xl p-4">
-  <button
-    onclick={() => goto("/how-to-play")}
-    class="fixed right-16 top-8 grid h-14 w-14 place-items-center rounded-full bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] outline-2 outline-zinc-300 hover:brightness-90"
-  >
-    <span class="text-be-mine-dark-gray text-5xl font-normal">?</span>
-  </button>
   <div class="flex h-full flex-col items-center justify-center gap-2">
     <div class="flex flex-col items-start gap-0">
       <div class="animate-floating flex items-center gap-3">
         <div>
           <h1
-            class="font-pixel bg-gradient-to-r from-[#202436] via-[#2e3552] to-[#6e7d97] bg-clip-text text-center text-8xl font-normal text-transparent"
+            class="font-pixel bg-gradient-to-r from-[#202436] via-[#2e3552] to-[#6e7d97] bg-clip-text text-center text-8xl font-normal text-transparent dark:from-[#CCD6DD] dark:via-[#979797] dark:via-100% dark:to-[#979797]"
           >
             BE MINE
           </h1>
           <p
-            class="text-be-mine-dark-gray justify-start self-stretch text-center text-4xl font-normal"
+            class="text-be-mine-dark-gray dark:text-be-mine-body-dark justify-start self-stretch text-center text-4xl font-normal"
           >
             Bomb Finding Adventure
           </p>
@@ -61,10 +55,14 @@
       </div>
     </div>
 
-    <div class="mt-6 w-full rounded-3xl border border-black/10 bg-white p-8 shadow-md">
+    <div
+      class="dark:bg-dark mt-6 w-full rounded-3xl border border-black/10 bg-white p-8 shadow-md dark:border-white/30"
+    >
       <div class="grid gap-6">
         <div class="flex flex-col items-center gap-4">
-          <div class="text-be-mine-gray justify-start self-stretch text-3xl font-normal">
+          <div
+            class="text-be-mine-gray dark:text-be-mine-body-dark justify-start self-stretch text-3xl font-normal"
+          >
             Choose Your Avatar
             <div class="mt-[40px] flex flex-wrap items-center justify-center gap-[80px]">
               {#each avatars as avatar, i}
@@ -86,13 +84,15 @@
         </div>
 
         <div class="mt-4 grid gap-3">
-          <div class="text-be-mine-gray justify-start self-stretch text-3xl font-normal">
+          <div
+            class="text-be-mine-gray dark:text-be-mine-body-dark justify-start self-stretch text-3xl font-normal"
+          >
             Your Nickname
           </div>
           <input
             placeholder="Enter your nickname..."
             bind:value={setupState.name}
-            class="text-be-mine-light-gray w-full justify-start rounded-2xl border border-black/10 bg-white px-4 py-3 text-2xl font-normal shadow-inner outline-none"
+            class="text-be-mine-light-gray dark:bg-dark dark:text-be-mine-body-dark w-full justify-start rounded-2xl border border-black/10 bg-white px-4 py-3 text-2xl font-normal shadow-inner outline-none dark:border-white/20"
           />
         </div>
       </div>

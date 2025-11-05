@@ -21,11 +21,11 @@
   };
 
   const baseClasses =
-    "w-20 h-16 p-2 rounded-xl inline-flex justify-center items-center transition hover:brightness-110 hover:scale-120 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50";
+    "p-2 rounded-xl inline-flex justify-center items-center transition hover:brightness-110 hover:scale-120 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50";
 
   const classes = twMerge(baseClasses, className);
 </script>
 
 <button type="button" {disabled} class={classes} {onclick} {...restProps}>
-  <img src={reactionIcons[type]} alt={`${type} reaction`} class="h-20 w-20 object-contain" />
+  <img src={reactionIcons[type]} alt={`${type} reaction`} class="size-12 object-contain" />
 </button>

@@ -86,15 +86,20 @@
     <input type="radio" name="mode" class="hidden" value={mode.id} bind:group={selectedMode} />
     <div
       class={twMerge(
-        "inline-flex h-14 w-60 cursor-pointer items-center justify-center overflow-hidden rounded-4xl bg-white px-10 py-2.5 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] outline-2 outline-offset-[-2px] outline-zinc-300",
+        "rounded-4xl dark:bg-dark dark:text-be-mine-body-dark inline-flex h-14 w-60 cursor-pointer items-center justify-center overflow-hidden bg-white px-10 py-2.5 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] outline-2 outline-offset-[-2px] outline-gray-300 dark:outline-gray-600",
         selectedMode === mode.id
-          ? "bg-be-mine-light-blue ring-1 ring-blue-500 outline-blue-500"
+          ? "bg-be-mine-light-blue outline-blue-500 dark:bg-gray-700 dark:outline-gray-400"
           : "hover:brightness-95",
       )}
     >
       <div class="flex items-center">
-        <img src={mode.icon} alt="" class="mr-1 h-10 w-10" />
-        <span class="text-center text-4xl font-normal text-black">
+        <img
+          src={mode.icon}
+          alt=""
+          class="mr-1 h-10 w-10"
+          class:dark:invert={mode.id === "blind"}
+        />
+        <span class="text-center text-4xl font-normal">
           {mode.name}
         </span>
       </div>
@@ -108,20 +113,22 @@
     <div class="mt-12 flex flex-row flex-wrap justify-center gap-4">
       {#each currentMode.description as description, i}
         <div
-          class="flex w-64 flex-col overflow-hidden rounded-3xl bg-white p-6 outline-1 outline-offset-[-1px] outline-slate-300"
+          class="dark:bg-dark dark:text-be-mine-body-dark flex w-64 flex-col overflow-hidden rounded-3xl bg-white p-6 outline-1 outline-gray-300 dark:outline-gray-600"
         >
           <div class="mb-4 flex h-64 items-center justify-center">
             <img src={currentMode.picture[i]} alt="" class="h-auto max-h-full w-auto" />
           </div>
-          <p class="text-lg font-normal text-black">{description}</p>
+          <p class="text-lg font-normal">{description}</p>
         </div>
       {/each}
     </div>
   {/if}
 {/snippet}
 
-<div class="min-h-screen bg-white p-16">
-  <h1 class="text-center text-5xl font-bold text-be-mine-light-gray">HOW TO PLAY</h1>
+<div class="min-h-screen p-16">
+  <h1 class="text-be-mine-light-gray dark:text-be-mine-body-dark text-center text-5xl font-bold">
+    HOW TO PLAY
+  </h1>
   <div class="mt-12 flex flex-wrap justify-center gap-2.5">
     {#each modes as mode}
       {@render gameType(mode)}
