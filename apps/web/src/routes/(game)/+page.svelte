@@ -69,10 +69,10 @@
                 <button
                   type="button"
                   class={twMerge(
-                    "grid h-16 w-16 place-items-center rounded-xl border-2 bg-white p-2 shadow-sm transition",
+                    "dark:bg-dark grid size-20 place-items-center rounded-2xl border-2 bg-white p-4 shadow-sm transition",
                     setupState.avatar === i
-                      ? "bg-be-mine-light-blue border-blue-500 ring-4 ring-blue-100"
-                      : "border-black/10 hover:brightness-105",
+                      ? "bg-be-mine-light-blue border-4 border-blue-500 dark:border-gray-300 dark:bg-gray-700"
+                      : "border-black/10 hover:brightness-105 dark:border-gray-600",
                   )}
                   onclick={() => selectAvatar(i)}
                 >

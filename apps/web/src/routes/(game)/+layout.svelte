@@ -113,7 +113,7 @@
       <button
         onclick={() => (darkMode = true)}
         class={twMerge(
-          "color-be-mine-gray hover:dark:brightness-120 flex aspect-square size-12 items-center justify-center rounded-full bg-white hover:brightness-90 dark:bg-[#2D3695]",
+          "color-be-mine-gray hover:dark:brightness-120 flex aspect-square size-12 items-center justify-center rounded-full bg-white hover:brightness-90",
           darkMode && "bg-be-mine-gray",
         )}
       >

@@ -40,10 +40,10 @@
 {#snippet gameType(mode: Mode)}
   <label
     class={twMerge(
-      "dark:bg-dark dark:text-be-mine-body-dark flex h-64 w-64 flex-col items-center justify-center gap-5 rounded-2xl p-8 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] outline-1 outline-offset-[-1px] outline-slate-300 hover:border-blue-500 hover:ring-4 hover:ring-blue-500",
+      "dark:bg-dark dark:text-be-mine-body-dark dark:hover:bg-dark flex h-64 w-64 flex-col items-center justify-center gap-5 rounded-2xl border-2 border-gray-300 p-8 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] transition-all hover:bg-gray-100 dark:border-gray-600 dark:hover:brightness-110",
       selectedMode === mode.id
-        ? "bg-be-mine-light-blue border-blue-500 ring-4 ring-blue-500"
-        : "border-black/10 bg-white hover:brightness-105",
+        ? "bg-be-mine-light-blue hover:bg-be-mine-light-blue border-4 border-blue-500 dark:border-gray-400 dark:brightness-125 dark:hover:brightness-125"
+        : "bg-white",
     )}
   >
     <input type="radio" name="mode" class="hidden" value={mode.id} bind:group={selectedMode} />
@@ -70,7 +70,7 @@
       {@render gameType(mode)}
     {/each}
   </fieldset>
-  <div class="w-md dark:bg-dark dark:text-be-mine-body-dark flex items-center justify-center gap-4">
+  <div class="w-md flex items-center justify-center gap-4">
     <Button disabled={!canProceed} onclick={handleJoin}>Create Game</Button>
   </div>
 </div>

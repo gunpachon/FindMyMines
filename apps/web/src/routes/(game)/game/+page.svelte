@@ -290,8 +290,12 @@
               isMiniMode ? "grid-cols-4" : "grid-cols-6",
               "place-items-stretch gap-1 p-3",
               "xl:h-auto xl:w-full",
-              isTurn && gameState.state?.currentTurn === 0 && "shadow-be-mine-green",
-              isTurn && gameState.state?.currentTurn === 1 && "shadow-be-mine-red",
+              isTurn &&
+                gameState.state?.currentTurn === 0 &&
+                "shadow-be-mine-green dark:shadow-be-mine-green",
+              isTurn &&
+                gameState.state?.currentTurn === 1 &&
+                "shadow-be-mine-red dark:shadow-be-mine-red",
             )}
           >
             {#each Array.from(new Array(boardSize), (_, i) => i) as y}
@@ -355,7 +359,7 @@
             {/each}
           </div>
           <div
-            class="border-light-gray flex gap-2 rounded-full border-4 bg-white px-4 py-1 shadow-lg"
+            class="border-light-gray dark:bg-dark flex gap-2 rounded-full border-4 bg-white px-4 py-1 shadow-lg dark:border-gray-600"
           >
             <Reaction
               type="fire"
