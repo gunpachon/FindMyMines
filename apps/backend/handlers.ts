@@ -34,7 +34,7 @@ function randomizeBomb(board: Board, bombNum: number) {
   }
   return board;
 }
-function createBoard(rowSize: number, colSize: number) {
+function createBoard(rowSize: number, colSize: number, mode: string) {
   const board: Board = [];
   for (let i = 0; i < rowSize; i++) {
     const row: Tile[] = [];
@@ -44,6 +44,14 @@ function createBoard(rowSize: number, colSize: number) {
         bomb: false,
         revealer: null, //{"Player1", "Player2"}
         index: [i, j],
+        blindParams:
+          mode === "blind"
+            ? {
+                tileOpener: null,
+                openingType: null,
+                openingNonce: 0,
+              }
+            : null,
       });
     }
     board.push(row);
@@ -104,7 +112,7 @@ export function registerHandlers(socket: Socket, io: Server) {
           if (currentTurnPlayer === undefined) throw new Error();
           currentTurnPlayer.emit("timeOut");
           updateTurn(game, false);
-        }, game.turnEndTime! - Date.now()),
+        }, game.turnEndTime! - Date.now())
       );
     }
 
@@ -130,13 +138,13 @@ export function registerHandlers(socket: Socket, io: Server) {
 
       if (replay) {
         const { rowSize, colSize, bombNum } = getBoardSize(game.mode);
-        game.board = createBoard(rowSize, colSize);
+        game.board = createBoard(rowSize, colSize, game.mode);
         randomizeBomb(game.board, bombNum);
         game.bombFound = 0;
 
         const maxScore = game.players.reduce(
           (acc, cur) => (cur.score > acc ? cur.score : acc),
-          -Infinity,
+          -Infinity
         );
 
         const loserIndex = game.players.findIndex((p) => p.score < maxScore);
@@ -157,7 +165,7 @@ export function registerHandlers(socket: Socket, io: Server) {
   socket.on("create", (mode: string) => {
     const code = generateid();
     const { rowSize, colSize, bombNum } = getBoardSize(mode);
-    const board = createBoard(rowSize, colSize);
+    const board = createBoard(rowSize, colSize, mode);
     randomizeBomb(board, bombNum);
     gameMap.set(code, {
       code: code,
@@ -205,11 +213,7 @@ export function registerHandlers(socket: Socket, io: Server) {
       return;
     }
 
-    if (game.mode === "blind") {
-      sendFilteredGameState(io, room, game);
-    } else {
-      io.to(room).emit("gameState", game);
-    }
+    io.to(room).emit("gameState", game);
   });
 
   socket.on("click", (tileIndex: [number, number]) => {
@@ -217,105 +221,55 @@ export function registerHandlers(socket: Socket, io: Server) {
 
     const game = gameMap.get(room);
     if (game != undefined) {
-      if (game.mode === "blind") {
-        const totalBombs = getBoardSize(game.mode).bombNum;
-        const turnClicker = game.players[game.currentTurn];
-        const tile = getTile(game.board, tileIndex);
-        if (!turnClicker || !tile) return;
-
-        if (socket.id !== turnClicker.socketID || tile.state === "revealed")
-          return;
-
-        const playerIndex = game.currentTurn;
-
-        // --- Blind mode reveal logic ---
-        if (tile.state === "found") {
-          if (tile.revealer === playerIndex) {
-            // ✅ this player originally found this bomb
-            sendFilteredGameState(io, room!, game);
-            return; // ⬅️ Do NOT call updateTurn()
-          }
-
-          // 👇 Opponent clicked a found bomb
-          tile.state = "revealed";
-          const originalRevealer = tile.revealer;
-          sendFilteredGameState(io, room!, game);
-
-          setTimeout(() => {
-            tile.state = "found";
-            tile.revealer = originalRevealer;
-            updateTurn(game, false); // opponent loses turn
-            sendFilteredGameState(io, room!, game);
-          }, 1000);
-
-          return;
-        }
-
-        tile.state = "revealed";
-        tile.revealer = playerIndex;
-
-        // Immediately send filtered state so each player sees the temporary reveal
-        sendFilteredGameState(io, room!, game);
-
-        // After 1 second, hide again or mark as found
-        setTimeout(() => {
-          if (tile.bomb) {
-            // Player found a new bomb
-            tile.state = "found"; // permanent for this player
-            tile.revealer = playerIndex;
-            turnClicker.score++;
-            game.bombFound++;
-
-            // Check win condition
-            if (game.bombFound === totalBombs) {
-              clearTimeout(timeouts.get(room!));
-              const maxScore = game.players.reduce(
-                (acc, cur) => (cur.score > acc ? cur.score : acc),
-                -Infinity,
-              );
-              const winner = game.players.find((p) => p.score >= maxScore);
-              const loser = game.players.find((p) => p.score < maxScore);
-              game.status = "ended";
-              winner?.emit("win");
-              loser?.emit("lose");
-              sendFilteredGameState(io, room!, game);
-              return;
-            }
-          } else {
-            // Not a bomb → hide again
-            tile.state = "hidden";
-            tile.revealer = null;
-          }
-
-          // Switch turns
-          updateTurn(game, false);
-          sendFilteredGameState(io, room!, game);
-        }, 1000);
-
-        return; // prevent continuing to normal mode
-      }
-
       const totalBombs = getBoardSize(game.mode).bombNum;
       const turnClicker = game.players[game.currentTurn];
       const tile = getTile(game.board, tileIndex);
       if (turnClicker !== undefined && tile !== undefined) {
-        console.log(socket.id, turnClicker.socketID);
-        if (socket.id != turnClicker.socketID) return gameMap.get(room);
-        if (tile.state == "revealed") return gameMap.get(room);
-        if (tile.bomb == true) {
+        // console.log(socket.id, turnClicker.socketID);
+        if (socket.id != turnClicker.socketID) return;
+        if (tile.state == "revealed") return;
+        if (tile.bomb == true && tile.revealer === null) {
           turnClicker.score++;
           game.bombFound++;
         }
-        tile.state = "revealed";
-        tile.revealer = game.currentTurn;
-        console.log(tile);
+
+        if (game.mode !== "blind") {
+          tile.state = "revealed";
+          tile.revealer = game.currentTurn;
+        } else {
+          const blindParams = tile.blindParams;
+
+          if (blindParams === null)
+            throw new Error("blind param should not be null for blind mode");
+
+          if (tile.revealer === null) {
+            tile.revealer = game.currentTurn;
+
+            blindParams.openingType = "initial";
+          } else {
+            blindParams.openingType = "opened";
+          }
+
+          blindParams.tileOpener = game.currentTurn;
+          const correctNonce = (blindParams.openingNonce += 1);
+
+          setTimeout(() => {
+            if (room === undefined) return;
+            if (blindParams.openingNonce !== correctNonce) return;
+
+            blindParams.openingType = null;
+            blindParams.tileOpener = null;
+
+            io.to(room).emit("gameState", game);
+          }, 2000);
+        }
 
         if (game.bombFound === totalBombs) {
           clearTimeout(timeouts.get(room));
 
           const maxScore = game.players.reduce(
             (acc, cur) => (cur.score > acc ? cur.score : acc),
-            -Infinity,
+            -Infinity
           );
 
           const winner = game.players.find((p) => p.score >= maxScore);
@@ -328,6 +282,12 @@ export function registerHandlers(socket: Socket, io: Server) {
 
           game.turnStartTime = null;
           game.turnEndTime = null;
+
+          game.board.forEach((ta) =>
+            ta.forEach((tile) => {
+              if (tile.revealer !== null) tile.state = "revealed";
+            })
+          );
 
           io.to(room).emit("gameState", game);
         } else {
@@ -346,11 +306,7 @@ export function registerHandlers(socket: Socket, io: Server) {
 
     startGame(game, true);
     io.to(room).emit("replay");
-    if (game.mode === "blind") {
-      sendFilteredGameState(io, room, game);
-    } else {
-      io.to(room).emit("gameState", game);
-    }
+    io.to(room).emit("gameState", game);
   });
 
   socket.on("leave", () => {
@@ -363,18 +319,14 @@ export function registerHandlers(socket: Socket, io: Server) {
     });
 
     socket.leave(room);
-    if (game.mode === "blind") {
-      sendFilteredGameState(io, room, game);
-    } else {
-      io.to(room).emit("gameState", game);
-    }
+    io.to(room).emit("gameState", game);
 
     io.to(room).emit("playerLeft");
     socket.emit("reset");
 
     const activePlayers = game.players.reduce(
       (acc, cur) => acc + (cur.active ? 1 : 0),
-      0,
+      0
     );
     if (activePlayers === 0) gameMap.delete(room);
 
@@ -406,35 +358,6 @@ export function registerAdminHandlers(socket: Socket, io: Server) {
     timeouts.values().forEach(clearTimeout);
 
     io.of("/").emit("reset");
-  });
-}
-
-function getBoardForPlayer(game: Game, playerIndex: number) {
-  return game.board.map((row) =>
-    row.map((tile) => {
-      if (game.mode !== "blind") return tile;
-
-      if (tile.state === "found" && tile.revealer === playerIndex) {
-        return { ...tile, state: "revealed", bomb: true };
-      }
-
-      if (tile.state === "found" && tile.revealer !== playerIndex) {
-        return { ...tile, bomb: true, state: "found" };
-      }
-
-      if (tile.state === "hidden") {
-        return { ...tile, bomb: false };
-      }
-
-      return tile;
-    }),
-  );
-}
-
-function sendFilteredGameState(io: Server, room: string, game: Game) {
-  game.players.forEach((p, i) => {
-    const filteredGame = { ...game, board: getBoardForPlayer(game, i) };
-    io.to(p.socketID).emit("gameState", filteredGame);
   });
 }
 

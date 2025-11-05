@@ -16,6 +16,7 @@
   import CryingFaceSVG from "$lib/assets/icons/crying-face.svg";
 
   import BombSVG from "$lib/assets/bomb.svg";
+  import BombOutlineSVG from "$lib/assets/bomb-outline.svg";
   import TimerBar from "$lib/components/TimerBar.svelte";
   import Banner from "$lib/components/Banner.svelte";
   import Button from "$lib/components/Button.svelte";
@@ -32,6 +33,7 @@
         state: "hidden",
         bomb: undefined,
         revealer: null,
+        blindParams: null,
       })),
     );
   }
@@ -168,6 +170,9 @@
 
     socket?.emit("sendReaction", type);
   }
+
+  // $inspect(gameState.state.board[0][0].blindParams);
+  // $inspect(gameState.state.board[0][3].blindParams);
 </script>
 
 <svelte:head>
@@ -279,7 +284,7 @@
       <div class="flex h-full w-full flex-col items-center xl:flex-row">
         <div
           class={twMerge(
-            "grid aspect-square bg-be-mine-gray shadow-glow shadow-light-gray",
+            "bg-be-mine-gray shadow-glow shadow-light-gray grid aspect-square",
             "h-full max-h-full w-auto max-w-full rounded-2xl",
             isMiniMode ? "grid-cols-4" : "grid-cols-6",
             "place-items-stretch gap-1 p-3",
@@ -292,9 +297,15 @@
             {#each Array.from(new Array(boardSize), (_, i) => i) as x}
               {@const board = gameState.state?.board ?? fallbackBoard}
               {@const state = board[y][x]}
-              {@const hasBomb = state.state === "revealed" && state.bomb === true}
+              {@const revealInitial =
+                state.blindParams && state.blindParams.openingType === "initial"}
+              {@const revealOpened =
+                state.blindParams && state.blindParams.openingType === "opened"}
+              {@const revealed = state.state === "revealed"}
+              {@const visible = revealed || revealInitial || revealOpened}
+
               {@const tileSVGVariant = (() => {
-                if (hasBomb) {
+                if ((revealed || revealInitial) && state.bomb === true) {
                   switch (state.revealer) {
                     case 0:
                       return TileGreenSVG;
@@ -304,13 +315,13 @@
                       return TileSVG;
                   }
                 } else {
-                  if (state.state === "revealed") return TileEmptySVG;
+                  if (visible && state.bomb === false) return TileEmptySVG;
                   return TileSVG;
                 }
               })()}
 
               <button
-                class="relative drop-shadow-md select-none"
+                class="relative select-none drop-shadow-md"
                 onclick={() => onTileClick(x, y)}
                 disabled={!isTurn}
               >
@@ -325,10 +336,15 @@
                   )}
                   draggable="false"
                 />
-                {#if state.state === "revealed" && state.bomb === true}
+                {#if visible && state.bomb === true}
                   <img
-                    src={BombSVG}
-                    class="absolute inset-0 z-10 ml-1 size-full"
+                    src={revealOpened ? BombOutlineSVG : BombSVG}
+                    class={twMerge(
+                      "absolute inset-0 z-10 ml-1 size-full",
+                      state.revealer !== null && "drop-shadow-[2px_2px_0px]",
+                      state.revealer === 0 && "drop-shadow-be-mine-green",
+                      state.revealer === 1 && "drop-shadow-be-mine-red",
+                    )}
                     draggable="false"
                     alt="Pixel art representing a bomb"
                   />
