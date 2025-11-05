@@ -10,8 +10,8 @@
     <div class="w-full max-w-3xl rounded-3xl border border-black/10 bg-white p-9 shadow-md">
       <div class="flex flex-col items-center gap-6 text-center">
         <div class="space-y-4">
-          <p class="text-be-mine-gray text-3xl font-normal">Room Code: {roomCode}</p>
-          <p class="text-be-mine-gray text-3xl font-normal">Mode: {mode}</p>
+          <p class="text-3xl font-normal text-be-mine-gray">Room Code: {roomCode}</p>
+          <p class="text-3xl font-normal text-be-mine-gray">Mode: {mode}</p>
         </div>
 
         <div class="my-4 flex gap-8">
@@ -20,7 +20,7 @@
           <div class="animate-dot-3 h-9 w-9 rounded-full"></div>
         </div>
 
-        <p class="text-be-mine-gray text-3xl font-normal">Waiting for Other Players...</p>
+        <p class="text-3xl font-normal text-be-mine-gray">Waiting for Other Players...</p>
       </div>
     </div>
   </div>

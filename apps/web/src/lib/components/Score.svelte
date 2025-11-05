@@ -26,16 +26,16 @@
   const reactionIcons = {
     celebrate: reactionCelebrate,
     fire: reactionFire,
-    heart: reactionHeart
+    heart: reactionHeart,
   };
 
   const avatars = [BombAvatar, BoomAvatar, GhostAvatar, RobotAvatar, CatAvatar];
-  
+
   const avatarSrc = $derived(() => {
     if (avatar === undefined) return undefined;
     const avatarIndex = parseInt(avatar);
-    return !isNaN(avatarIndex) && avatarIndex >= 0 && avatarIndex < avatars.length 
-      ? avatars[avatarIndex] 
+    return !isNaN(avatarIndex) && avatarIndex >= 0 && avatarIndex < avatars.length
+      ? avatars[avatarIndex]
       : undefined;
   });
 </script>
@@ -47,7 +47,7 @@
     role="presentation"
     alt="background for score"
   />
-  <div class="font-pixel absolute inset-0 px-4">
+  <div class="absolute inset-0 px-4 font-pixel">
     <div
       class="mb-3 h-9 w-32 truncate text-4xl text-gray-400"
       class:ml-auto={variant === "right"}
@@ -57,9 +57,9 @@
     </div>
     <div class="flex items-center justify-around">
       {#if variant === "left"}
-        <div class="size-16 rounded-full overflow-hidden flex items-center justify-center">
+        <div class="flex size-16 items-center justify-center overflow-hidden rounded-full">
           {#if avatarSrc()}
-            <img src={avatarSrc()} alt="player avatar" class="w-14 h-14 object-contain" />
+            <img src={avatarSrc()} alt="player avatar" class="h-14 w-14 object-contain" />
           {/if}
         </div>
         <span class={twMerge("text-5xl", score === undefined && "text-be-mine-gray/50")}>
@@ -69,26 +69,30 @@
         <span class={twMerge("text-5xl", score === undefined && "text-be-mine-gray/50")}>
           {score !== undefined ? score.toString().padStart(4, "0") : "????"}
         </span>
-        <div class="size-16 rounded-full overflow-hidden flex items-center justify-center">
+        <div class="flex size-16 items-center justify-center overflow-hidden rounded-full">
           {#if avatarSrc()}
-            <img src={avatarSrc()} alt="player avatar" class="w-14 h-14 object-contain" />
+            <img src={avatarSrc()} alt="player avatar" class="h-14 w-14 object-contain" />
           {/if}
         </div>
       {/if}
     </div>
   </div>
-  
+
   {#if reaction}
-    <div 
+    <div
       class="absolute z-10 {variant === 'left' ? '-right-4' : '-left-4'} -top-4"
       in:scale={{ duration: 300, easing: backOut, start: 0 }}
       out:scale={{ duration: 200, start: 0 }}
     >
-      <div class="bg-white rounded-full p-2 shadow-lg ring-2 {variant === 'left' ? 'ring-be-mine-green' : 'ring-be-mine-red'}">
-        <img 
-          src={reactionIcons[reaction]} 
+      <div
+        class="rounded-full bg-white p-2 shadow-lg ring-2 {variant === 'left'
+          ? 'ring-be-mine-green'
+          : 'ring-be-mine-red'}"
+      >
+        <img
+          src={reactionIcons[reaction]}
           alt={`${reaction} reaction`}
-          class="w-14 h-14 object-contain"
+          class="h-14 w-14 object-contain"
         />
       </div>
     </div>

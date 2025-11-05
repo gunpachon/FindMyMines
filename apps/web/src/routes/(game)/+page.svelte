@@ -37,21 +37,21 @@
 <div class="relative z-10 mx-auto h-dvh max-w-4xl p-4">
   <button
     onclick={() => goto("/how-to-play")}
-    class="fixed right-16 top-8 grid h-14 w-14 outline-zinc-300 outline-2 place-items-center rounded-full bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] hover:brightness-90"
+    class="fixed top-8 right-16 grid h-14 w-14 place-items-center rounded-full bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] outline-2 outline-zinc-300 hover:brightness-90"
   >
     <span class="text-5xl font-normal text-be-mine-dark-gray">?</span>
   </button>
   <div class="flex h-full flex-col items-center justify-center gap-2">
     <div class="flex flex-col items-start gap-0">
-      <div class="animate-floating flex items-center gap-3">
+      <div class="flex animate-floating items-center gap-3">
         <div>
           <h1
-            class="font-pixel bg-gradient-to-r from-[#202436] via-[#2e3552] to-[#6e7d97] bg-clip-text text-center text-8xl font-normal text-transparent"
+            class="bg-gradient-to-r from-[#202436] via-[#2e3552] to-[#6e7d97] bg-clip-text text-center font-pixel text-8xl font-normal text-transparent"
           >
             BE MINE
           </h1>
           <p
-            class="text-be-mine-dark-gray justify-start self-stretch text-center text-4xl font-normal"
+            class="justify-start self-stretch text-center text-4xl font-normal text-be-mine-dark-gray"
           >
             Bomb Finding Adventure
           </p>
@@ -64,7 +64,7 @@
     <div class="mt-6 w-full rounded-3xl border border-black/10 bg-white p-8 shadow-md">
       <div class="grid gap-6">
         <div class="flex flex-col items-center gap-4">
-          <div class="text-be-mine-gray justify-start self-stretch text-3xl font-normal">
+          <div class="justify-start self-stretch text-3xl font-normal text-be-mine-gray">
             Choose Your Avatar
             <div class="mt-[40px] flex flex-wrap items-center justify-center gap-[80px]">
               {#each avatars as avatar, i}
@@ -73,7 +73,7 @@
                   class={twMerge(
                     "grid h-16 w-16 place-items-center rounded-xl border-2 bg-white p-2 shadow-sm transition",
                     setupState.avatar === i
-                      ? "bg-be-mine-light-blue border-blue-500 ring-4 ring-blue-100"
+                      ? "border-blue-500 bg-be-mine-light-blue ring-4 ring-blue-100"
                       : "border-black/10 hover:brightness-105",
                   )}
                   onclick={() => selectAvatar(i)}
@@ -86,13 +86,13 @@
         </div>
 
         <div class="mt-4 grid gap-3">
-          <div class="text-be-mine-gray justify-start self-stretch text-3xl font-normal">
+          <div class="justify-start self-stretch text-3xl font-normal text-be-mine-gray">
             Your Nickname
           </div>
           <input
             placeholder="Enter your nickname..."
             bind:value={setupState.name}
-            class="text-be-mine-light-gray w-full justify-start rounded-2xl border border-black/10 bg-white px-4 py-3 text-2xl font-normal shadow-inner outline-none"
+            class="w-full justify-start rounded-2xl border border-black/10 bg-white px-4 py-3 text-2xl font-normal text-be-mine-light-gray shadow-inner outline-none"
           />
         </div>
       </div>

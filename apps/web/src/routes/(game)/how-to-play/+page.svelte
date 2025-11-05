@@ -86,15 +86,15 @@
     <input type="radio" name="mode" class="hidden" value={mode.id} bind:group={selectedMode} />
     <div
       class={twMerge(
-        "w-60 h-14 px-10 py-2.5 bg-white rounded-4xl shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] outline-2 outline-offset-[-2px] outline-zinc-300 inline-flex justify-center items-center overflow-hidden cursor-pointer",
+        "inline-flex h-14 w-60 cursor-pointer items-center justify-center overflow-hidden rounded-4xl bg-white px-10 py-2.5 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] outline-2 outline-offset-[-2px] outline-zinc-300",
         selectedMode === mode.id
-          ? "bg-be-mine-light-blue outline-blue-500 ring-1 ring-blue-500"
+          ? "bg-be-mine-light-blue ring-1 ring-blue-500 outline-blue-500"
           : "hover:brightness-95",
       )}
     >
       <div class="flex items-center">
-        <img src={mode.icon} alt="" class="h-10 w-10 mr-1" />
-        <span class="text-center text-black text-4xl font-normal">
+        <img src={mode.icon} alt="" class="mr-1 h-10 w-10" />
+        <span class="text-center text-4xl font-normal text-black">
           {mode.name}
         </span>
       </div>
@@ -105,15 +105,15 @@
 {#snippet howToPlayContent()}
   {@const currentMode = howToPlays.find((mode) => mode.id === selectedMode)}
   {#if currentMode}
-    <div class="flex flex-row flex-wrap gap-4 mt-12 justify-center">
+    <div class="mt-12 flex flex-row flex-wrap justify-center gap-4">
       {#each currentMode.description as description, i}
         <div
-          class="overflow-hidden rounded-3xl bg-white p-6 w-64 flex flex-col outline-1 outline-offset-[-1px] outline-slate-300"
+          class="flex w-64 flex-col overflow-hidden rounded-3xl bg-white p-6 outline-1 outline-offset-[-1px] outline-slate-300"
         >
-          <div class="flex items-center justify-center h-64 mb-4">
-            <img src={currentMode.picture[i]} alt="" class="w-auto h-auto max-h-full" />
+          <div class="mb-4 flex h-64 items-center justify-center">
+            <img src={currentMode.picture[i]} alt="" class="h-auto max-h-full w-auto" />
           </div>
-          <p class="text-black text-lg font-normal">{description}</p>
+          <p class="text-lg font-normal text-black">{description}</p>
         </div>
       {/each}
     </div>

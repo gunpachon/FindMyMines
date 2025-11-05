@@ -42,7 +42,7 @@
     class={twMerge(
       "flex h-64 w-64 flex-col items-center justify-center gap-5 rounded-2xl p-8 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] outline-1 outline-offset-[-1px] outline-slate-300 hover:border-blue-500 hover:ring-4 hover:ring-blue-500",
       selectedMode === mode.id
-        ? "bg-be-mine-light-blue border-blue-500 ring-4 ring-blue-500"
+        ? "border-blue-500 bg-be-mine-light-blue ring-4 ring-blue-500"
         : "border-black/10 bg-white hover:brightness-105",
     )}
   >
@@ -63,7 +63,7 @@
       {@render gameType(mode)}
     {/each}
   </fieldset>
-  <div class="w-md flex items-center justify-center gap-4">
+  <div class="flex w-md items-center justify-center gap-4">
     <Button disabled={!canProceed} onclick={handleJoin}>Create Game</Button>
   </div>
 </div>

@@ -1,5 +1,5 @@
 import type { Server, Socket } from "socket.io";
-import type { Board, Game, Tile ,Reaction} from "./types.ts";
+import type { Board, Game, Tile, Reaction } from "./types.ts";
 
 function getRandomInt(max: number) {
   return Math.floor(Math.random() * max);
@@ -20,7 +20,10 @@ function getTile(board: Board, index: [number, number]) {
 function randomizeBomb(board: Board, bombNum: number) {
   let count = 0;
   while (count < bombNum) {
-    const index: [number, number] = [getRandomInt(board.length), getRandomInt(board.length)];
+    const index: [number, number] = [
+      getRandomInt(board.length),
+      getRandomInt(board.length),
+    ];
     const tile = getTile(board, index);
     if (tile !== undefined) {
       if (tile.bomb == false) {
@@ -50,9 +53,9 @@ function createBoard(rowSize: number, colSize: number) {
 
 function getBoardSize(mode: string) {
   if (mode === "mini") {
-    return {rowSize: 4, colSize: 4, bombNum: 5};
+    return { rowSize: 4, colSize: 4, bombNum: 5 };
   }
-  return {rowSize: 6, colSize: 6, bombNum: 11};
+  return { rowSize: 6, colSize: 6, bombNum: 11 };
 }
 
 const gameMap = new Map<string, Game>();
@@ -101,7 +104,7 @@ export function registerHandlers(socket: Socket, io: Server) {
           if (currentTurnPlayer === undefined) throw new Error();
           currentTurnPlayer.emit("timeOut");
           updateTurn(game, false);
-        }, game.turnEndTime! - Date.now())
+        }, game.turnEndTime! - Date.now()),
       );
     }
 
@@ -117,8 +120,6 @@ export function registerHandlers(socket: Socket, io: Server) {
     }
 
     io.to(room).emit("gameState", game);
-    
-
   }
 
   function startGame(game: Game, replay: boolean) {
@@ -135,7 +136,7 @@ export function registerHandlers(socket: Socket, io: Server) {
 
         const maxScore = game.players.reduce(
           (acc, cur) => (cur.score > acc ? cur.score : acc),
-          -Infinity
+          -Infinity,
         );
 
         const loserIndex = game.players.findIndex((p) => p.score < maxScore);
@@ -173,7 +174,7 @@ export function registerHandlers(socket: Socket, io: Server) {
     socket.emit("created", code);
   });
 
-  socket.on("join", (name: string, code: string, avatar:string) => {
+  socket.on("join", (name: string, code: string, avatar: string) => {
     if (room !== undefined) return;
 
     room = code;
@@ -195,7 +196,7 @@ export function registerHandlers(socket: Socket, io: Server) {
         socketID: socket.id,
         emit: (event: string) => socket.emit(event),
         active: true,
-        avatar: avatar
+        avatar: avatar,
       });
       if (game.players.length == 2) {
         startGame(game, false);
@@ -208,8 +209,7 @@ export function registerHandlers(socket: Socket, io: Server) {
       sendFilteredGameState(io, room, game);
     } else {
       io.to(room).emit("gameState", game);
-}
-
+    }
   });
 
   socket.on("click", (tileIndex: [number, number]) => {
@@ -217,14 +217,14 @@ export function registerHandlers(socket: Socket, io: Server) {
 
     const game = gameMap.get(room);
     if (game != undefined) {
-
       if (game.mode === "blind") {
         const totalBombs = getBoardSize(game.mode).bombNum;
         const turnClicker = game.players[game.currentTurn];
         const tile = getTile(game.board, tileIndex);
         if (!turnClicker || !tile) return;
 
-        if (socket.id !== turnClicker.socketID || tile.state === "revealed") return;
+        if (socket.id !== turnClicker.socketID || tile.state === "revealed")
+          return;
 
         const playerIndex = game.currentTurn;
 
@@ -271,7 +271,7 @@ export function registerHandlers(socket: Socket, io: Server) {
               clearTimeout(timeouts.get(room!));
               const maxScore = game.players.reduce(
                 (acc, cur) => (cur.score > acc ? cur.score : acc),
-                -Infinity
+                -Infinity,
               );
               const winner = game.players.find((p) => p.score >= maxScore);
               const loser = game.players.find((p) => p.score < maxScore);
@@ -315,12 +315,12 @@ export function registerHandlers(socket: Socket, io: Server) {
 
           const maxScore = game.players.reduce(
             (acc, cur) => (cur.score > acc ? cur.score : acc),
-            -Infinity
+            -Infinity,
           );
 
           const winner = game.players.find((p) => p.score >= maxScore);
           const loser = game.players.find((p) => p.score < maxScore);
-          
+
           game.status = "ended";
 
           winner?.emit("win");
@@ -351,7 +351,6 @@ export function registerHandlers(socket: Socket, io: Server) {
     } else {
       io.to(room).emit("gameState", game);
     }
-
   });
 
   socket.on("leave", () => {
@@ -375,7 +374,7 @@ export function registerHandlers(socket: Socket, io: Server) {
 
     const activePlayers = game.players.reduce(
       (acc, cur) => acc + (cur.active ? 1 : 0),
-      0
+      0,
     );
     if (activePlayers === 0) gameMap.delete(room);
 
@@ -388,13 +387,13 @@ export function registerHandlers(socket: Socket, io: Server) {
     if (game === undefined) return;
 
     // find which player send the reaction
-    const playerIndex = game.players.findIndex(p => p.socketID === socket.id);
+    const playerIndex = game.players.findIndex((p) => p.socketID === socket.id);
     if (playerIndex === -1) return;
 
     const reactionData = {
       reaction: react,
       timestamp: Date.now(),
-      playerIndex: playerIndex
+      playerIndex: playerIndex,
     };
 
     io.to(room).emit("reactionReceived", reactionData);
@@ -411,8 +410,8 @@ export function registerAdminHandlers(socket: Socket, io: Server) {
 }
 
 function getBoardForPlayer(game: Game, playerIndex: number) {
-  return game.board.map(row =>
-    row.map(tile => {
+  return game.board.map((row) =>
+    row.map((tile) => {
       if (game.mode !== "blind") return tile;
 
       if (tile.state === "found" && tile.revealer === playerIndex) {
@@ -428,7 +427,7 @@ function getBoardForPlayer(game: Game, playerIndex: number) {
       }
 
       return tile;
-    })
+    }),
   );
 }
 
@@ -438,7 +437,6 @@ function sendFilteredGameState(io: Server, room: string, game: Game) {
     io.to(p.socketID).emit("gameState", filteredGame);
   });
 }
-
 
 // export function onReset(code: string) {
 //   //not done yet

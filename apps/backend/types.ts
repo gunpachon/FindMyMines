@@ -25,6 +25,6 @@ export type Game = {
   turnEndTime: number | null;
 };
 export type Reaction = {
-  reaction:string;
+  reaction: string;
   timestamp: number; //for ordering the reactions
-}
+};

@@ -13,7 +13,7 @@
 
   function handleJoin() {
     if (!canProceed()) return;
-    
+
     const avatarValue = setupState.avatar !== undefined ? String(setupState.avatar) : "0";
 
     socket?.emit("join", setupState.name, roomCode, avatarValue);
@@ -25,7 +25,7 @@
     <div class="w-full rounded-3xl border border-black/10 bg-white p-9 shadow-md">
       <div class="grid gap-6">
         <div class="flex flex-col items-center gap-4">
-          <div class="font-pixel text-be-mine-gray justify-start self-stretch text-3xl font-normal">
+          <div class="justify-start self-stretch font-pixel text-3xl font-normal text-be-mine-gray">
             Room Code
           </div>
         </div>
@@ -33,7 +33,7 @@
           <input
             placeholder="Enter Code..."
             bind:value={roomCode}
-            class="text-be-mine-light-gray w-full justify-start rounded-2xl border border-black/10 bg-white px-4 py-3 text-2xl font-normal shadow-inner outline-none"
+            class="w-full justify-start rounded-2xl border border-black/10 bg-white px-4 py-3 text-2xl font-normal text-be-mine-light-gray shadow-inner outline-none"
           />
         </div>
       </div>
