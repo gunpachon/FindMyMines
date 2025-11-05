@@ -11,6 +11,11 @@ export type Tile = {
   state: string; //{"hidden", "revealed"},
   bomb: boolean;
   revealer: number | null; //{"Player1", "Player2"}
+  blindParams: {
+    tileOpener: number | null;
+    openingType: "initial" | "opened" | null;
+    openingNonce: number;
+  } | null;
 };
 export type Board = Tile[][];
 export type Game = {
