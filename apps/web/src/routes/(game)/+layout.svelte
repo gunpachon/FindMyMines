@@ -8,6 +8,10 @@
   import { goto } from "$app/navigation";
   import { env } from "$env/dynamic/public";
 
+  import NotesPNG from "$lib/assets/notes.png";
+  import RedLinePNG from "$lib/assets/red-line.png";
+  import { twMerge } from "tailwind-merge";
+
   let { children } = $props();
 
   function gotoIfNotAt(route: string) {
@@ -58,6 +62,25 @@
       goto("/", { replaceState: true });
     });
   }
+
+  let musicPaused = $state(true);
 </script>
 
+<audio autoplay bind:paused={musicPaused} volume={0.08}>
+  <source src="/the-world-of-8-bit-games-trimmed.mp3" />
+</audio>
+
+<div>
+  <button
+    onclick={() => (musicPaused = !musicPaused)}
+    class="fixed bottom-8 right-16 z-20 grid h-14 w-14 place-items-center rounded-full bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] outline-2 outline-zinc-300 transition-transform hover:brightness-90 active:scale-90"
+  >
+    <div class="relative">
+      <img src={NotesPNG} alt="" class={twMerge("size-10")} />
+      {#if !musicPaused}
+        <img src={RedLinePNG} alt="" class="absolute inset-0 m-auto size-9" />
+      {/if}
+    </div>
+  </button>
+</div>
 {@render children?.()}
