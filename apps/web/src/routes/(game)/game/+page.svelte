@@ -328,7 +328,7 @@
                 {#if state.state === "revealed" && state.bomb === true}
                   <img
                     src={BombSVG}
-                    class="absolute inset-0 z-10 ml-1"
+                    class="absolute inset-0 z-10 ml-1 size-full"
                     draggable="false"
                     alt="Pixel art representing a bomb"
                   />
