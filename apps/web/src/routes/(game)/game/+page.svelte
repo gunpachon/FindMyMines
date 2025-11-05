@@ -220,7 +220,7 @@
         iconSource={TrophySVG}
         topText="You win!"
         bottomText="Points: {myScore}"
-        class="bg-white/90 shadow-lg"
+        class="dark:bg-dark/90 bg-white/90 shadow-lg"
       />
       <div class="flex w-full gap-6">
         <Button onclick={handleReplay} disabled={!canReplay}>Play again</Button>
@@ -282,90 +282,103 @@
       class="col-span-full row-start-2 place-self-stretch xl:col-span-1 xl:row-span-full xl:row-start-1"
     >
       <div class="flex h-full w-full flex-col items-center xl:flex-row">
-        <div
-          class={twMerge(
-            "bg-be-mine-gray shadow-glow shadow-light-gray grid aspect-square",
-            "h-full max-h-full w-auto max-w-full rounded-2xl",
-            isMiniMode ? "grid-cols-4" : "grid-cols-6",
-            "place-items-stretch gap-1 p-3",
-            "xl:h-auto xl:w-full",
-            isTurn && gameState.state?.currentTurn === 0 && "shadow-be-mine-green",
-            isTurn && gameState.state?.currentTurn === 1 && "shadow-be-mine-red",
-          )}
-        >
-          {#each Array.from(new Array(boardSize), (_, i) => i) as y}
-            {#each Array.from(new Array(boardSize), (_, i) => i) as x}
-              {@const board = gameState.state?.board ?? fallbackBoard}
-              {@const state = board[y][x]}
-              {@const revealInitial =
-                state.blindParams && state.blindParams.openingType === "initial"}
-              {@const revealOpened =
-                state.blindParams && state.blindParams.openingType === "opened"}
-              {@const revealed = state.state === "revealed"}
-              {@const visible = revealed || revealInitial || revealOpened}
+        <div class="flex flex-col items-center gap-8">
+          <div
+            class={twMerge(
+              "bg-be-mine-gray shadow-glow shadow-light-gray dark:shadow-dark grid aspect-square",
+              "h-full max-h-full w-auto max-w-full rounded-2xl",
+              isMiniMode ? "grid-cols-4" : "grid-cols-6",
+              "place-items-stretch gap-1 p-3",
+              "xl:h-auto xl:w-full",
+              isTurn &&
+                gameState.state?.currentTurn === 0 &&
+                "shadow-be-mine-green dark:shadow-be-mine-green",
+              isTurn &&
+                gameState.state?.currentTurn === 1 &&
+                "shadow-be-mine-red dark:shadow-be-mine-red",
+            )}
+          >
+            {#each Array.from(new Array(boardSize), (_, i) => i) as y}
+              {#each Array.from(new Array(boardSize), (_, i) => i) as x}
+                {@const board = gameState.state?.board ?? fallbackBoard}
+                {@const state = board[y][x]}
+                {@const revealInitial =
+                  state.blindParams && state.blindParams.openingType === "initial"}
+                {@const revealOpened =
+                  state.blindParams && state.blindParams.openingType === "opened"}
+                {@const revealed = state.state === "revealed"}
+                {@const visible = revealed || revealInitial || revealOpened}
 
-              {@const tileSVGVariant = (() => {
-                if ((revealed || revealInitial) && state.bomb === true) {
-                  switch (state.revealer) {
-                    case 0:
-                      return TileGreenSVG;
-                    case 1:
-                      return TileRedSVG;
-                    default:
-                      return TileSVG;
+                {@const tileSVGVariant = (() => {
+                  if ((revealed || revealInitial) && state.bomb === true) {
+                    switch (state.revealer) {
+                      case 0:
+                        return TileGreenSVG;
+                      case 1:
+                        return TileRedSVG;
+                      default:
+                        return TileSVG;
+                    }
+                  } else {
+                    if (visible && state.bomb === false) return TileEmptySVG;
+                    return TileSVG;
                   }
-                } else {
-                  if (visible && state.bomb === false) return TileEmptySVG;
-                  return TileSVG;
-                }
-              })()}
+                })()}
 
-              <button
-                class="relative select-none drop-shadow-md"
-                onclick={() => onTileClick(x, y)}
-                disabled={!isTurn}
-              >
-                <img
-                  src={tileSVGVariant}
-                  alt=""
-                  class={twMerge(
-                    "h-full w-full",
-                    isTurn &&
-                      state.state === "hidden" &&
-                      "hover:cursor-pointer hover:brightness-110",
-                  )}
-                  draggable="false"
-                />
-                {#if visible && state.bomb === true}
+                <button
+                  class="relative select-none drop-shadow-md"
+                  onclick={() => onTileClick(x, y)}
+                  disabled={!isTurn}
+                >
                   <img
-                    src={revealOpened ? BombOutlineSVG : BombSVG}
+                    src={tileSVGVariant}
+                    alt=""
                     class={twMerge(
-                      "absolute inset-0 z-10 ml-1 size-full",
-                      state.revealer !== null && "drop-shadow-[2px_2px_0px]",
-                      state.revealer === 0 && "drop-shadow-be-mine-green",
-                      state.revealer === 1 && "drop-shadow-be-mine-red",
+                      "h-full w-full",
+                      isTurn &&
+                        state.state === "hidden" &&
+                        "hover:cursor-pointer hover:brightness-110",
                     )}
                     draggable="false"
-                    alt="Pixel art representing a bomb"
                   />
-                {/if}
-              </button>
+                  {#if visible && state.bomb === true}
+                    <img
+                      src={revealOpened ? BombOutlineSVG : BombSVG}
+                      class={twMerge(
+                        "absolute inset-0 z-10 ml-1 size-full",
+                        state.revealer !== null && "drop-shadow-[2px_2px_0px]",
+                        state.revealer === 0 && "drop-shadow-be-mine-green",
+                        state.revealer === 1 && "drop-shadow-be-mine-red",
+                      )}
+                      draggable="false"
+                      alt="Pixel art representing a bomb"
+                    />
+                  {/if}
+                </button>
+              {/each}
             {/each}
-          {/each}
+          </div>
+          <div
+            class="border-light-gray dark:bg-dark flex gap-2 rounded-full border-4 bg-white px-4 py-1 shadow-lg dark:border-gray-600"
+          >
+            <Reaction
+              type="fire"
+              onclick={() => handleReaction("fire")}
+              disabled={reactionCooldown}
+            />
+            <Reaction
+              type="celebrate"
+              onclick={() => handleReaction("celebrate")}
+              disabled={reactionCooldown}
+            />
+            <Reaction
+              type="heart"
+              onclick={() => handleReaction("heart")}
+              disabled={reactionCooldown}
+            />
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-
-  <div class="fixed bottom-14 left-1/2 -translate-x-1/2">
-    <div class="flex gap-4 rounded-full bg-gray-200 p-4">
-      <Reaction type="fire" onclick={() => handleReaction("fire")} disabled={reactionCooldown} />
-      <Reaction
-        type="celebrate"
-        onclick={() => handleReaction("celebrate")}
-        disabled={reactionCooldown}
-      />
-      <Reaction type="heart" onclick={() => handleReaction("heart")} disabled={reactionCooldown} />
     </div>
   </div>
 </div>

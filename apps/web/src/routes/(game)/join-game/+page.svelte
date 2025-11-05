@@ -22,10 +22,14 @@
 
 <div class="relative z-10 mx-auto h-dvh max-w-4xl p-6">
   <div class="flex h-full flex-col items-center justify-center gap-2">
-    <div class="w-full rounded-3xl border border-black/10 bg-white p-9 shadow-md">
+    <div
+      class="dark:bg-dark dark:text-be-mine-body-dark w-full rounded-3xl border border-black/10 bg-white p-9 shadow-md dark:border-white/10"
+    >
       <div class="grid gap-6">
         <div class="flex flex-col items-center gap-4">
-          <div class="justify-start self-stretch font-pixel text-3xl font-normal text-be-mine-gray">
+          <div
+            class="font-pixel text-be-mine-gray dark:text-be-mine-body-dark justify-start self-stretch text-3xl font-normal"
+          >
             Room Code
           </div>
         </div>
@@ -33,7 +37,7 @@
           <input
             placeholder="Enter Code..."
             bind:value={roomCode}
-            class="w-full justify-start rounded-2xl border border-black/10 bg-white px-4 py-3 text-2xl font-normal text-be-mine-light-gray shadow-inner outline-none"
+            class="text-be-mine-light-gray w-full justify-start rounded-2xl border border-black/10 bg-white px-4 py-3 text-2xl font-normal shadow-inner outline-none"
           />
         </div>
       </div>
