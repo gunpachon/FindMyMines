@@ -47,7 +47,7 @@
     role="presentation"
     alt="background for score"
   />
-  <div class="absolute inset-0 px-4 font-pixel">
+  <div class="font-pixel absolute inset-0 px-4">
     <div
       class="mb-3 h-9 w-32 truncate text-4xl text-gray-400"
       class:ml-auto={variant === "right"}

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { linear } from "svelte/easing";
   import { Tween } from "svelte/motion";
+  import { twMerge } from "tailwind-merge";
 
   interface Props {
     start: number | null;
@@ -46,12 +47,15 @@
   });
 </script>
 
-<div class="h-6 w-full overflow-hidden rounded-lg border border-gray-400 bg-gray-300">
+<div
+  class="dark:bg-be-mine-dark-gray h-6 w-full overflow-hidden rounded-lg border border-gray-400 bg-gray-300 dark:border-gray-600"
+>
   <div
-    class="h-full rounded-md"
-    class:ml-auto={variant === "right"}
-    class:bg-be-mine-green={variant === "left"}
-    class:bg-be-mine-red={variant === "right"}
+    class={twMerge(
+      "dark:brightness-85 h-full rounded-md",
+      variant === "right" && "bg-be-mine-red ml-auto",
+      variant === "left" && "bg-be-mine-green",
+    )}
     style:width={Math.max(0, 1 - tween.current) * 100 + "%"}
   ></div>
 </div>
