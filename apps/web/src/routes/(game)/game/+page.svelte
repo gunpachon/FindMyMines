@@ -307,10 +307,11 @@
                 {@const revealOpened =
                   state.blindParams && state.blindParams.openingType === "opened"}
                 {@const revealed = state.state === "revealed"}
-                {@const visible = revealed || revealInitial || revealOpened}
+                {@const selfFoundBomb = state.revealer === gameState.myIndex && state.bomb === true}
+                {@const visible = revealed || revealInitial || revealOpened || selfFoundBomb}
 
                 {@const tileSVGVariant = (() => {
-                  if ((revealed || revealInitial) && state.bomb === true) {
+                  if ((revealed || revealInitial || selfFoundBomb) && state.bomb === true) {
                     switch (state.revealer) {
                       case 0:
                         return TileGreenSVG;
@@ -320,13 +321,7 @@
                         return TileSVG;
                     }
                   } else {
-                    if (revealed && state.bomb === false) return TileEmptySVG;
-                    if (
-                      visible &&
-                      state.bomb === false &&
-                      state.blindParams?.tileOpener === gameState.myIndex
-                    )
-                      return TileEmptySVG;
+                    if (visible && state.bomb === false) return TileEmptySVG;
                     return TileSVG;
                   }
                 })()}
@@ -349,7 +344,7 @@
                   />
                   {#if visible && state.bomb === true}
                     <img
-                      src={revealOpened ? BombOutlineSVG : BombSVG}
+                      src={revealOpened && !selfFoundBomb ? BombOutlineSVG : BombSVG}
                       class={twMerge(
                         "pointer-events-none absolute inset-0 z-10 ml-1 size-full",
                         state.revealer !== null && "drop-shadow-[2px_2px_0px]",
