@@ -1,7 +1,7 @@
 <script lang="ts">
   import { io } from "socket.io-client";
   import { browser } from "$app/environment";
-  import { socketContext } from "$lib/context";
+  import { socketContext, statusContext } from "$lib/context";
   import { setupState, gameState } from "$lib/state.svelte";
   import type { Game } from "$lib/types";
   import { page } from "$app/state";
@@ -23,6 +23,8 @@
     }
   }
 
+  let statusObject = $state({ connected: false });
+
   if (browser) {
     if (!gameState.state) {
       gotoIfNotAt("/");
@@ -31,9 +33,10 @@
     const socket = io(env.PUBLIC_BACKEND_HOST ?? ":3000");
 
     socketContext.set(socket);
+    statusContext.set(statusObject);
 
     socket.on("connect", () => {
-      console.log("connected");
+      statusObject.connected = true;
     });
 
     socket.on("created", (code) => {
@@ -61,6 +64,10 @@
     socket.on("reset", () => {
       gameState.state = undefined;
       goto("/", { replaceState: true });
+    });
+
+    socket.on("disconnect", () => {
+      statusObject.connected = false;
     });
   }
 

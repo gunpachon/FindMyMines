@@ -10,6 +10,7 @@
   import { goto } from "$app/navigation";
 
   import { setupState } from "$lib/state.svelte";
+  import { statusContext } from "$lib/context";
 
   const avatars = [BombAvatar, BoomAvatar, GhostAvatar, RobotAvatar, CatAvatar] as const;
 
@@ -32,8 +33,17 @@
 
     goto("/join-game");
   }
+
+  const connected = $derived(statusContext.getOr(undefined)?.connected);
 </script>
 
+<div class="absolute right-8 top-8 text-2xl">
+  {#if connected === true}
+    <span class="text-green-700 dark:text-green-500">● Connected</span>
+  {:else if connected === false}
+    <span class="text-amber-600 dark:text-amber-400">[x] Trying to connect… </span>
+  {/if}
+</div>
 <div class="relative z-10 mx-auto h-dvh max-w-4xl p-4">
   <div class="flex h-full flex-col items-center justify-center gap-2">
     <div class="flex flex-col items-start gap-0">

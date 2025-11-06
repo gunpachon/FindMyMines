@@ -17,9 +17,9 @@
   }
 </script>
 
-<div class="flex min-h-dvh flex-col items-center justify-center">
+<div class="bg-grid flex min-h-dvh flex-col items-center justify-center">
   <div
-    class="flex min-w-md flex-col items-center rounded-2xl border border-light-gray bg-white p-8"
+    class="min-w-md border-light-gray flex flex-col items-center rounded-2xl border bg-white p-8"
   >
     <h1 class="mb-6 text-2xl">Admin view</h1>
     <p class="text-6xl">{connectedClients ?? "…"}</p>
