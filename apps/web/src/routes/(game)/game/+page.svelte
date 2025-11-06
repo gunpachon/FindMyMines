@@ -320,7 +320,13 @@
                         return TileSVG;
                     }
                   } else {
-                    if (visible && state.bomb === false) return TileEmptySVG;
+                    if (revealed && state.bomb === false) return TileEmptySVG;
+                    if (
+                      visible &&
+                      state.bomb === false &&
+                      state.blindParams?.tileOpener === gameState.myIndex
+                    )
+                      return TileEmptySVG;
                     return TileSVG;
                   }
                 })()}
@@ -345,7 +351,7 @@
                     <img
                       src={revealOpened ? BombOutlineSVG : BombSVG}
                       class={twMerge(
-                        "absolute inset-0 z-10 ml-1 size-full",
+                        "pointer-events-none absolute inset-0 z-10 ml-1 size-full",
                         state.revealer !== null && "drop-shadow-[2px_2px_0px]",
                         state.revealer === 0 && "drop-shadow-be-mine-green",
                         state.revealer === 1 && "drop-shadow-be-mine-red",
