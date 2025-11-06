@@ -344,7 +344,9 @@
                   />
                   {#if visible && state.bomb === true}
                     <img
-                      src={revealOpened && !selfFoundBomb ? BombOutlineSVG : BombSVG}
+                      src={gameState.state?.mode === "blind" && !selfFoundBomb
+                        ? BombOutlineSVG
+                        : BombSVG}
                       class={twMerge(
                         "pointer-events-none absolute inset-0 z-10 ml-1 size-full",
                         state.revealer !== null && "drop-shadow-[2px_2px_0px]",
