@@ -187,8 +187,8 @@ export function registerHandlers(socket: Socket, io: Server) {
       leaveRoom();
     }
 
-    if (room === undefined) {
-      console.log("Room should not be undefined by now");
+    if (room !== undefined) {
+      console.log("Room should be undefined by now");
       return;
     }
 
