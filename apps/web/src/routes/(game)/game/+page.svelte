@@ -281,7 +281,7 @@
     <div
       class="col-span-full row-start-2 place-self-stretch xl:col-span-1 xl:row-span-full xl:row-start-1"
     >
-      <div class="flex h-full w-full flex-col items-center xl:flex-row">
+      <div class="flex h-full w-full flex-col items-center justify-center xl:flex-row">
         <div class="flex flex-col items-center gap-8">
           <div
             class={twMerge(
