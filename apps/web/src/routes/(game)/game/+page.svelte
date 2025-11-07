@@ -220,7 +220,7 @@
         iconSource={TrophySVG}
         topText="You win!"
         bottomText="Points: {myScore}"
-        class="dark:bg-dark/90 bg-white/90 shadow-lg"
+        class="dark:bg-dark/90 dark:text-be-mine-body-dark bg-white/90 shadow-lg dark:border-gray-600"
       />
       <div class="flex w-full gap-6">
         <Button onclick={handleReplay} disabled={!canReplay}>Play again</Button>
@@ -240,7 +240,7 @@
         iconSource={CryingFaceSVG}
         topText="You lose"
         bottomText="Points: {myScore}"
-        class="dark:bg-dark/90 bg-white/90 shadow-lg"
+        class="dark:bg-dark/90 dark:text-be-mine-body-dark bg-white/90 shadow-lg dark:border-gray-600"
       />
       <div class="flex w-full gap-6">
         <Button onclick={handleReplay} disabled={!canReplay}>Play again</Button>

@@ -37,7 +37,7 @@
           <input
             placeholder="Enter Code..."
             bind:value={roomCode}
-            class="text-be-mine-light-gray w-full justify-start rounded-2xl border border-black/10 bg-white px-4 py-3 text-2xl font-normal shadow-inner outline-none"
+            class="text-be-mine-light-gray dark:bg-dark dark:text-be-mine-body-dark w-full justify-start rounded-2xl border border-black/10 bg-white px-4 py-3 text-2xl font-normal shadow-inner outline-none"
           />
         </div>
       </div>
