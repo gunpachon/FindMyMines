@@ -15,7 +15,7 @@
   }
 
   const modes: Mode[] = [
-    { id: "general", name: "General", icon: BombSVG },
+    { id: "general", name: "Classic", icon: BombSVG },
     { id: "zen", name: "Zen", icon: ZenSVG },
     { id: "blind", name: "Blind", icon: BlindSVG },
     { id: "mini", name: "Mini", icon: MiniSVG },
