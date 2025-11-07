@@ -183,7 +183,14 @@ export function registerHandlers(socket: Socket, io: Server) {
   });
 
   socket.on("join", (name: string, code: string, avatar: string) => {
-    if (room !== undefined) return;
+    if (room !== undefined) {
+      leaveRoom();
+    }
+
+    if (room === undefined) {
+      console.log("Room should not be undefined by now");
+      return;
+    }
 
     room = code;
 
@@ -309,7 +316,7 @@ export function registerHandlers(socket: Socket, io: Server) {
     io.to(room).emit("gameState", game);
   });
 
-  socket.on("leave", () => {
+  const leaveRoom = () => {
     if (room === undefined) return;
     const game = gameMap.get(room);
     if (game === undefined) return;
@@ -331,7 +338,9 @@ export function registerHandlers(socket: Socket, io: Server) {
     if (activePlayers === 0) gameMap.delete(room);
 
     room = undefined;
-  });
+  };
+
+  socket.on("leave", leaveRoom);
 
   socket.on("sendReaction", (react: string) => {
     if (room === undefined) return;
