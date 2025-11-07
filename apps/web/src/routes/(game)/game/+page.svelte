@@ -240,7 +240,7 @@
         iconSource={CryingFaceSVG}
         topText="You lose"
         bottomText="Points: {myScore}"
-        class="bg-white/90 shadow-lg"
+        class="dark:bg-dark/90 bg-white/90 shadow-lg"
       />
       <div class="flex w-full gap-6">
         <Button onclick={handleReplay} disabled={!canReplay}>Play again</Button>
