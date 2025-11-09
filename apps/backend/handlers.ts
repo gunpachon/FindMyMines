@@ -194,6 +194,11 @@ export function registerHandlers(socket: Socket, io: Server) {
 
     room = code;
 
+    if (gameMap.get(room) === undefined) {
+      socket.emit("error", "room does not exist");
+      return;
+    }
+
     const socketsInRoom = io.sockets.adapter.rooms.get(room)?.size;
 
     if (socketsInRoom !== undefined && socketsInRoom >= 2) {
