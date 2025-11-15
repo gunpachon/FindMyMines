@@ -75,7 +75,7 @@
   let darkMode = $state(false);
 </script>
 
-<audio autoplay bind:paused={musicPaused} volume={0.08}>
+<audio autoplay loop bind:paused={musicPaused} volume={0.08}>
   <source src="/the-world-of-8-bit-games-trimmed.mp3" />
 </audio>
 
