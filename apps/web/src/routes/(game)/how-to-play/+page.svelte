@@ -125,7 +125,13 @@
   {/if}
 {/snippet}
 
-<div class="min-h-screen p-16">
+<div class="min-h-screen p-12">
+  <button
+    class="dark:bg-dark dark:text-be-mine-body-dark cursor-pointer rounded-full border-2 border-gray-300 bg-white px-8 py-2 text-3xl shadow-md hover:brightness-95 dark:border-gray-600"
+    onclick={() => history.back()}
+  >
+    &lt; Back
+  </button>
   <h1 class="text-be-mine-light-gray dark:text-be-mine-body-dark text-center text-5xl font-bold">
     HOW TO PLAY
   </h1>
