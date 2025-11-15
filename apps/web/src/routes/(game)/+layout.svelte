@@ -87,7 +87,7 @@
     >
       <div class="relative">
         <img src={NotesPNG} alt="" class="size-10 dark:invert" />
-        {#if !musicPaused}
+        {#if musicPaused}
           <img src={RedLinePNG} alt="" class="absolute inset-0 m-auto size-9" />
         {/if}
       </div>
